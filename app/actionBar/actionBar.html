@@ -1,0 +1,5 @@
+<div class="action-bar" *ngFor="let action of actions">
+    <div class="action-button" (click)="executeAction(action)" [class.active]="isActiveAction(action)">
+        {{action.name}}
+    </div>
+</div>

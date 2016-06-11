@@ -1,0 +1,9 @@
+<div class="unit-container" [class.selected]="isSelectedUnit()" (click)="selectUnit()">
+    <b>{{unit.name}}</b>
+    <progress-bar class="health-bar" [progress]="unit.getHealthPercent" [unit]="unit"></progress-bar>
+    <progress-bar class="casting-bar" [progress]="unit.getCastProgressPercent" [unit]="unit"></progress-bar>
+    <span *ngIf="getTarget()">{{getTarget().name}}</span>
+    <!--<span>{{unit.attackProgress | number: '.1-1' }}</span><br>
+    <span>{{unit.attackTime}}</span><br>-->
+    <!--<span>{{jsonUnit()}}</span><br>-->
+</div>

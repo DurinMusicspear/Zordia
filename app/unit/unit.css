@@ -1,0 +1,12 @@
+.unit-container {
+    border: 1px solid transparent;
+    float: left;
+    padding: 10px;
+}
+.unit-container:hover {
+    border-color: #ccc;
+    cursor: pointer;
+}
+.unit-container.selected {
+    border-color: blue;
+}
