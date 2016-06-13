@@ -70,10 +70,10 @@ export class CombatService {
     findNewPlayerTarget(player) {
         player.target = null;
         this.enemyUnits.forEach(enemy => {
-            if (player.target == null && enemy.health > 0)
+            if (player.target === null && enemy.health > 0)
                 player.setTarget(enemy);
         });
-        if (player.target == null)
+        if (player.target === null)
             this.stop();
     }
 
@@ -85,15 +85,15 @@ export class CombatService {
     findNewEnemyTarget(enemy) {
         enemy.target = null;
         this.playerUnits.forEach(player => {
-            if (enemy.target == null && player.health > 0)
+            if (enemy.target === null && player.health > 0)
                 enemy.setTarget(player);
         });
-        if (enemy.target == null)
+        if (enemy.target === null)
             this.stop();
     }
 
     progressAttack(attacker, dt) {
-        if (attacker.castingAction != null) {
+        if (attacker.castingAction !== null) {
             attacker.castProgress += dt;
             if(attacker.castProgress >= attacker.castingAction.castTime) {
                 this.executeAction(attacker);
@@ -108,7 +108,7 @@ export class CombatService {
     }
 
     executeAttack(attacker, defender) {
-        var dmg = attacker.getDamage();
+        let dmg = attacker.getDamage();
 
         //var block = defender.getArmor();
         //block -= attacker.getArmorPenentration();
@@ -134,7 +134,7 @@ export class CombatService {
     }
 
     causeBleeding(attacker, defender, damage) {
-        if (attacker.getBleedChance() == 0)
+        if (attacker.getBleedChance() === 0)
             return;
 
         if (this.roll(attacker.getBleedChance())) {
@@ -164,7 +164,7 @@ export class CombatService {
     }
 
     applyBleedTick(unit) {
-        var bleed = unit.bleedStackDamage * unit.bleedStacks;
+        let bleed = unit.bleedStackDamage * unit.bleedStacks;
         unit.decreaseHealth(bleed);
         unit.addDamageLogValue(bleed + ' (Bleed)');
     }
@@ -182,7 +182,7 @@ export class CombatService {
     }
 
     castCurrentAction() {
-        var caster = this.activeAction.owner;
+        let caster = this.activeAction.owner;
         // if(target != null) {
         //     caster.actionTarget = target;
         // }
@@ -190,10 +190,10 @@ export class CombatService {
     }
 
     executeAction(attacker) {
-        var action = attacker.castingAction;
-        var target = null;// attacker.actionTarget;
-        if(action.targetType == TargetType.Allied) {
-            if(action.targetPriority == TargetPriority.LeastHealth)
+        let action = attacker.castingAction;
+        let target = null;// attacker.actionTarget;
+        if (action.targetType === TargetType.Allied) {
+            if (action.targetPriority === TargetPriority.LeastHealth)
                 target = this.findAllyWithLeastHealth(attacker);
         }
 
@@ -201,18 +201,18 @@ export class CombatService {
         //     target = attacker.target;
         // }
 
-        if (action.id == 2) { // Heal
+        if (action.id === 2) { // Heal
             target.increaseHealth(action.power);
             target.addDamageLogValue('+' + action.power);
         }
 
-        if(action.id == 3) { // Taunt
-            var targets = this.playerUnits;
-            if(this.isPlayerUnit(attacker))
+        if (action.id === 3) { // Taunt
+            let targets = this.playerUnits;
+            if (this.isPlayerUnit(attacker))
                 targets = this.enemyUnits;
-            targets.forEach(target => {
-                target.setTarget(attacker);
-            })
+            targets.forEach(t => {
+                t.setTarget(attacker);
+            });
         }        
 
         attacker.castingAction.startCooldown();
@@ -226,14 +226,14 @@ export class CombatService {
     }
 
     findAllyWithLeastHealth(unit) {
-        var leastUnit;
-        var allies = this.playerUnits;
-        if(!this.isPlayerUnit(unit)) {
+        let leastUnit;
+        let allies = this.playerUnits;
+        if (!this.isPlayerUnit(unit)) {
             allies = this.enemyUnits;   
         }
-        allies.forEach(unit => {
-            if(leastUnit == null || unit.health < leastUnit.health) {
-                leastUnit = unit;
+        allies.forEach(u => {
+            if (leastUnit === null || u.health < leastUnit.health) {
+                leastUnit = u;
             }
         });
         return leastUnit;

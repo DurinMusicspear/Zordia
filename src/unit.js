@@ -1,12 +1,12 @@
 import {inject} from 'aurelia-framework';
 import {SettingService} from './setting.service';
 import {Action} from './action';
- 
-export var UnitClass = {
+
+export const UnitClass = {
     Warrior: 0,
     Druid: 1,
     Rogue: 2
-}
+};
 
 @inject(SettingService)
 export class Unit {
@@ -78,7 +78,7 @@ export class Unit {
     }
 
     getCastProgressPercent() {
-        if (this.castingAction == null)
+        if (this.castingAction === null)
             return 0;
 
         return (this.castProgress / this.castingAction.castTime) * 100;
@@ -91,7 +91,7 @@ export class Unit {
     }
 
     reduceCastProgress(dt) {
-        if (this.castingAction != null) {
+        if (this.castingAction !== null) {
             this.castProgress -= dt;
             if (this.castProgress < 0)
                 this.castProgress = 0
@@ -99,7 +99,7 @@ export class Unit {
     }
 
     canDodgeAttack() {
-        return this.dodgeTimer == 0 && this.dodgeChance > 0;
+        return this.dodgeTimer === 0 && this.dodgeChance > 0;
     }
 
     dodgeAttack() {

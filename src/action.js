@@ -1,14 +1,12 @@
-import {Unit} from './unit';
-
-export var TargetType = {
+export const TargetType = {
     Allied: 0,
     Enemy: 1,
     Self: 2
-}
+};
 
-export var TargetPriority = {
+export const TargetPriority = {
     LeastHealth: 0
-}
+};
 
 export class Action {
     id = 0;

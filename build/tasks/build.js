@@ -9,6 +9,7 @@ var compilerOptions = require('../babel-options');
 var assign = Object.assign || require('object.assign');
 var notify = require('gulp-notify');
 var browserSync = require('browser-sync');
+var sass = require('gulp-sass');
 
 // transpiles changed es6 files to SystemJS format
 // the plumber() call prevents 'pipe breaking' caused
@@ -20,7 +21,7 @@ gulp.task('build-system', function() {
     .pipe(changed(paths.output, {extension: '.js'}))
     .pipe(sourcemaps.init({loadMaps: true}))
     .pipe(to5(assign({}, compilerOptions.system())))
-    .pipe(sourcemaps.write('.', {includeContent: false, sourceRoot: '/src'}))
+    .pipe(sourcemaps.write('.', {includeContent: true, sourceRoot: '/src'}))
     .pipe(gulp.dest(paths.output));
 });
 
@@ -34,7 +35,11 @@ gulp.task('build-html', function() {
 // copies changed css files to the output directory
 gulp.task('build-css', function() {
   return gulp.src(paths.css)
-    .pipe(changed(paths.output, {extension: '.css'}))
+    .pipe(plumber())
+    .pipe(changed(paths.output, {extension: '.scss'}))
+    .pipe(sourcemaps.init())
+    .pipe(sass())
+    .pipe(sourcemaps.write())
     .pipe(gulp.dest(paths.output))
     .pipe(browserSync.stream());
 });

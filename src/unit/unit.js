@@ -1,6 +1,6 @@
 import {inject, bindable} from 'aurelia-framework';
-import {Unit} from '../unit'
-import {CombatService} from '../combat.service'
+import {Unit} from '../unit';
+import {CombatService} from '../combat.service';
 
 @inject(CombatService)
 export class UnitCustomElement {
