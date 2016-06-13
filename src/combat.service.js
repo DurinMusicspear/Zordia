@@ -226,7 +226,7 @@ export class CombatService {
     }
 
     findAllyWithLeastHealth(unit) {
-        let leastUnit;
+        let leastUnit = null;
         let allies = this.playerUnits;
         if (!this.isPlayerUnit(unit)) {
             allies = this.enemyUnits;   

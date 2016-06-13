@@ -1,4 +1,6 @@
 <template>
+    <require from="./action-bar.css"></require>
+
     <div class="action-bar" repeat.for="action of actions">
         <div class="action-button" click.trigger="executeAction(action)" class.bind="combat.activeAction === action ? 'active' : ''">
             ${action.name}
