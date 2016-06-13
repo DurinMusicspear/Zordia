@@ -1,0 +1,20 @@
+<template>
+    <require from="../progressBar/progress-bar"></require>
+    <require from="../castBar/cast-bar"></require>
+
+    <div class="unit-container" [class.selected]="isSelectedUnit()" (click)="selectUnit()">
+        
+        <div class="portrait" css="background-image: ${unitImage};"></div>
+        <div class="bar-container">
+            <b>${unit.name}</b>
+            <progress-bar class="health-bar animate-bar" current-value.bind="unit.health" max-value.bind="unit.maxHealth"></progress-bar>
+            <cast-bar class="casting-bar" progress.bind="unit.castProgress" action.bind="unit.castingAction"></cast-bar>
+        </div>
+        <!--<span *ngIf="getTarget()">{{getTarget().name}}</span>-->
+
+        <!--<span>{{unit.attackProgress | number: '.1-1' }}</span><br>
+        <span>{{unit.attackTime}}</span><br>-->
+        <!--<span>{{jsonUnit()}}</span><br>-->
+
+    </div>
+</template>

@@ -5,6 +5,7 @@
         "**/.svn": true,
         "**/.DS_Store": true,
         "node_modules/": true,
+        "jspm_packages/": true,
         "**/*.js.map": true,
         "**/*.js": { "when": "$(basename).ts"}
     }

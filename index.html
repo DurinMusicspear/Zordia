@@ -1,24 +1,24 @@
+<!DOCTYPE html>
 <html>
   <head>
-    <title>Zordia</title>
-    <meta charset="UTF-8">
+    <title>Zordia battle</title>
+    <!--<link rel="stylesheet" href="jspm_packages/npm/font-awesome@4.6.3/css/font-awesome.min.css">-->
+    <link rel="stylesheet" href="styles/normalize.css">
+    <link rel="stylesheet" href="styles/styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="styles.css">
-
-    <!-- Polyfill(s) for older browsers -->
-    <script src="node_modules/core-js/client/shim.min.js"></script>
-
-    <script src="node_modules/zone.js/dist/zone.js"></script>
-    <script src="node_modules/reflect-metadata/Reflect.js"></script>
-    <script src="node_modules/systemjs/dist/system.src.js"></script>
-
-    <script src="systemjs.config.js"></script>
-    <script>
-      System.import('app').catch(function(err){ console.error(err); });
-    </script>
+    <!--<script src="fpsmeter.js"></script>-->
   </head>
 
-  <body>
-    <my-app>Loading...</my-app>
+  <body aurelia-app="main">
+    <div class="splash">
+      <div class="message">Aurelia Navigation Skeleton</div>
+      <i class="fa fa-spinner fa-spin"></i>
+    </div>
+
+    <script src="jspm_packages/system.js"></script>
+    <script src="config.js"></script>
+    <script>
+      System.import('aurelia-bootstrapper');
+    </script>
   </body>
 </html>
