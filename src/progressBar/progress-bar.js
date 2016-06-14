@@ -1,5 +1,4 @@
 import {bindable, computedFrom} from 'aurelia-framework';
-import {Unit} from '../unit'
 
 export class ProgressBarCustomElement {
     @bindable currentValue;
@@ -10,7 +9,7 @@ export class ProgressBarCustomElement {
 
     @computedFrom('currentValue', 'maxValue')
     get progressPercent() {
-        if(this.maxValue > 0)
+        if (this.maxValue > 0)
             return (this.currentValue / this.maxValue) * 100 + '%';
 
         return '0';

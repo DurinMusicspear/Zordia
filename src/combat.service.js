@@ -1,25 +1,23 @@
 // import {AppComponent} from './app.component';
 import {inject} from 'aurelia-framework';
-import {Unit} from './unit';
-import {Action, TargetType, TargetPriority} from './action';
+import {TargetType, TargetPriority} from './action';
 import {SettingService} from './setting.service';
 
 @inject(SettingService)
 export class CombatService {
-    playerUnits = [];
-    enemyUnits = [];
-    activeAction = null;
-    actionTarget = null;
-    selectedUnit = null;
-
-    combatActive = false;
-    now = 0;
-    dt = 0;
-    step = 1 / 60;
-    last = 0;
 
     constructor(settings) {
         this.settings = settings;
+        this.playerUnits = [];
+        this.enemyUnits = [];
+        this.activeAction = null;
+        this.actionTarget = null;
+        this.selectedUnit = null;
+        this.combatActive = false;
+        this.now = 0;
+        this.dt = 0;
+        this.step = 1 / 60;
+        this.last = 0;
     }
 
     start() {
@@ -63,7 +61,7 @@ export class CombatService {
     }
 
     checkPlayerTargetDead(player) {
-        if (player.target == null || player.target.health == 0)
+        if (player.target === null || player.target.health === 0)
             this.findNewPlayerTarget(player);
     }
 
@@ -78,7 +76,7 @@ export class CombatService {
     }
 
     checkEnemyTargetDead(enemy) {
-        if (enemy.target == null || enemy.target.health == 0)
+        if (enemy.target === null || enemy.target.health === 0)
             this.findNewEnemyTarget(enemy);
     }
 
@@ -95,7 +93,7 @@ export class CombatService {
     progressAttack(attacker, dt) {
         if (attacker.castingAction !== null) {
             attacker.castProgress += dt;
-            if(attacker.castProgress >= attacker.castingAction.castTime) {
+            if (attacker.castProgress >= attacker.castingAction.castTime) {
                 this.executeAction(attacker);
             }
         } else {
@@ -108,7 +106,7 @@ export class CombatService {
     }
 
     executeAttack(attacker, defender) {
-        let dmg = attacker.getDamage();
+        let dmg = attacker.damage;
 
         //var block = defender.getArmor();
         //block -= attacker.getArmorPenentration();
@@ -222,14 +220,14 @@ export class CombatService {
     }
 
     isPlayerUnit(unit) {
-        return this.playerUnits.indexOf(unit) != -1;
+        return this.playerUnits.indexOf(unit) !== -1;
     }
 
     findAllyWithLeastHealth(unit) {
         let leastUnit = null;
         let allies = this.playerUnits;
         if (!this.isPlayerUnit(unit)) {
-            allies = this.enemyUnits;   
+            allies = this.enemyUnits;
         }
         allies.forEach(u => {
             if (leastUnit === null || u.health < leastUnit.health) {

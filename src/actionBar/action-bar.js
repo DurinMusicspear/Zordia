@@ -1,6 +1,5 @@
 import {inject, bindable, computedFrom} from 'aurelia-framework';
-import {Action} from '../action'
-import {CombatService} from '../combat.service'
+import {CombatService} from '../combat.service';
 
 @inject(CombatService)
 export class ActionBarCustomElement {
@@ -17,7 +16,7 @@ export class ActionBarCustomElement {
 
     // @computedFrom('combat.activeAction')
     isActiveAction(action) {
-        return this.combat.activeAction == action;
+        return this.combat.activeAction === action;
     }
 
     attached() {

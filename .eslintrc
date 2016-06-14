@@ -1,6 +1,7 @@
 {
     "extends": "./node_modules/aurelia-tools/.eslintrc.json",
     "rules": {
-        "indent": 0
+        "indent": 0,
+        "curly": 0
     }
 }

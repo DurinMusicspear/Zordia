@@ -1,5 +1,4 @@
 import {bindable, computedFrom} from 'aurelia-framework';
-import {Unit} from '../unit'
 
 export class CastBarCustomElement {
     @bindable action;
@@ -10,7 +9,7 @@ export class CastBarCustomElement {
 
     @computedFrom('progress')
     get progressPercent() {
-        if(this.action !== null)
+        if (this.action !== null)
             return (this.progress / this.action.castTime) * 100 + '%';
 
         return '0';

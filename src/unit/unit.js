@@ -1,5 +1,4 @@
 import {inject, bindable} from 'aurelia-framework';
-import {Unit} from '../unit';
 import {CombatService} from '../combat.service';
 
 @inject(CombatService)
@@ -11,18 +10,18 @@ export class UnitCustomElement {
     }
 
     selectUnit() {
-        if (this.combat.activeAction != null) {
+        if (this.combat.activeAction !== null) {
             this.combat.castCurrentAction(this.unit);
         } else
             this.combat.selectedUnit = this.unit;
     }
 
     isSelectedUnit() {
-        return this.unit == this.combat.selectedUnit;
+        return this.unit === this.combat.selectedUnit;
     }
 
     getTarget() {
-        if (this.unit.actionTarget != null)
+        if (this.unit.actionTarget !== null)
             return this.unit.actionTarget;
         return this.unit.target;
     }

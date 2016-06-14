@@ -1,6 +1,5 @@
 import {inject} from 'aurelia-framework';
 import {SettingService} from './setting.service';
-import {Action} from './action';
 
 export const UnitClass = {
     Warrior: 0,
@@ -10,39 +9,38 @@ export const UnitClass = {
 
 @inject(SettingService)
 export class Unit {
-    name;
-    image;
-    level = 1;
-    health;
-    class;
-
-    attackTime = 1;
-
-    hasteRating = 0;
-    armorPenentration = 0;
-    bleedChance = 0;
-    bleedDamage = 0;
-
-    dodgeChance = 0;
-
-    attackProgress = 0;
-    bleedStacks = 0;
-    bleedStackDamage = 0;
-    dodgeTimer = 0;
-    bleedTimer = 0;
-    target = null;
-
-    actions = [];
-    castProgress = 0;
-    castingAction = null;
-    actionTarget = null;
-
-    damageLog = [];
 
     constructor(settings) {
         this.settings = settings;
+
+        this.name = '';
+        this.image = '';
+        this.level = 1;
+        this.class = UnitClass.Warrior;
+
+        this.baseHealth = 400;
+        this.baseDamage = 10;
+        this.health = 0;
+        this.dodgeChance = 0;
+        this.baseArmor = 0;
+
+        this.actions = [];
         this.attackTime = settings.defaultAttackSpeed;
-        this.resetHealth();
+        this.hasteRating = 0;
+        this.armorPenentration = 0;
+        this.bleedChance = 0;
+        this.bleedDamage = 0;
+
+        this.attackProgress = 0;
+        this.bleedStacks = 0;
+        this.bleedStackDamage = 0;
+        this.dodgeTimer = 0;
+        this.bleedTimer = 0;
+        this.target = null;
+        this.castProgress = 0;
+        this.castingAction = null;
+        this.actionTarget = null;
+        this.damageLog = [];
     }
 
     resetHealth() {
@@ -85,7 +83,7 @@ export class Unit {
     }
 
     get castTime() {
-        if(this.castingAction !== null)
+        if (this.castingAction !== null)
             return this.castingAction.castTime;
         return 0;
     }
@@ -94,7 +92,7 @@ export class Unit {
         if (this.castingAction !== null) {
             this.castProgress -= dt;
             if (this.castProgress < 0)
-                this.castProgress = 0
+                this.castProgress = 0;
         }
     }
 
@@ -109,9 +107,9 @@ export class Unit {
 
 
     // Virtual methods
-    get maxHealth() { return 300; }
-    getDamage() { return 5; }
-    getArmor() { return 1; }
+    get maxHealth() { return this.baseHealth; }
+    get damage() { return this.baseDamage; }
+    get armor() { return this.baseArmor; }
     getAttackSpeed() { return this.attackTime; }
     getArmorPenentration() { return this.armorPenentration; }
     getHaste() { return this.hasteRating; }
