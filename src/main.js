@@ -4,7 +4,8 @@ export function configure(aurelia) {
     aurelia.use
         .defaultBindingLanguage()
         .defaultResources()
-        .developmentLogging();
+        .developmentLogging()
+        .feature('resources');
 
     //Uncomment the line below to enable animation.
     //aurelia.use.plugin('aurelia-animator-css');

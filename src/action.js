@@ -8,6 +8,12 @@ export const TargetPriority = {
     LeastHealth: 0
 };
 
+export const ActionType = {
+    Direct: 0,
+    OverTimeEffect: 1,
+    DirectAndOverTime: 2
+};
+
 export class Action {
 
     constructor() {
@@ -20,6 +26,9 @@ export class Action {
         this.owner = null;
         this.targetType = 0;
         this.targetPriority = 0;
+        this.maxStacks = 1;
+        this.duration = 0;
+        this.actionType = ActionType.Direct;
     }
 
     startCooldown() {
@@ -31,6 +40,44 @@ export class Action {
             this.cooldownRemaining -= dt;
             if (this.cooldownRemaining < 0)
                 this.cooldownRemaining = 0;
+        }
+    }
+}
+
+export class OverTimeEffect {
+
+    constructor(action) {
+        this.id = action.id;
+        this.duration = action.duration;
+        this.name = action.name;
+        this.power = action.power;
+        this.remainingDuration = this.duration;
+        this.tickProgress = 0;
+        this.stacks = 1;
+        this.maxStacks = action.maxStacks;
+        this.tickReady = false;
+    }
+
+    addStack() {
+        this.stacks += 1;
+        if (this.stacks > this.maxStacks)
+            this.stacks = this.maxStacks;
+        this.remainingDuration = this.duration;
+    }
+
+    resetDuration() {
+        this.remainingDuration = this.duration;
+    }
+
+    reduceRemaningDuration(dt) {
+        this.remainingDuration -= dt;
+        if (this.remainingDuration < 0)
+            this.remainingDuration = 0;
+
+        this.tickProgress += dt;
+        if (this.tickProgress >= 1) {
+            this.tickProgress -= 1;
+            this.tickReady = true;
         }
     }
 }

@@ -20,6 +20,7 @@ export class App {
             let enemy = new Unit(this.settings);
             enemy.name = 'monster' + i;
             enemy.image = '11a89b2cf393f23c3f6c11dec106c2e8.jpg';
+            enemy.dodgeChance = 25;
             this.enemyUnits.push(enemy);
             enemy.resetHealth();
         }
@@ -53,8 +54,6 @@ export class App {
     }
 
     hotkeyPress(event) {
-        console.log(event);
-
         switch (event.keyCode) {
             case 81:
                 this.combat.setActiveAction(this.actions[0]);

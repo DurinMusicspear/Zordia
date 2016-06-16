@@ -1,6 +1,6 @@
 // import {AppComponent} from './app.component';
 import {inject} from 'aurelia-framework';
-import {TargetType, TargetPriority} from './action';
+import {OverTimeEffect, ActionType, TargetType, TargetPriority} from './action';
 import {SettingService} from './setting.service';
 
 @inject(SettingService)
@@ -50,12 +50,14 @@ export class CombatService {
             if (unit.health > 0) {
                 this.checkPlayerTargetDead(unit);
                 this.progressAttack(unit, dt);
+                this.processOverTimeEffects(unit, dt);
             }
         });
         this.enemyUnits.forEach(unit => {
             if (unit.health > 0) {
                 this.checkEnemyTargetDead(unit);
                 this.progressAttack(unit, dt);
+                this.processOverTimeEffects(unit, dt);
             }
         });
     }
@@ -105,6 +107,19 @@ export class CombatService {
         }
     }
 
+    processOverTimeEffects(unit, dt) {
+        unit.overTimeEffects.forEach(effect => {
+            effect.reduceRemaningDuration(dt);
+            if (effect.tickReady) {
+                this.executeOverTimeTick(unit, effect);
+                effect.tickReady = false;
+            }
+            if (effect.remainingDuration === 0) {
+                unit.removeOverTimeEffect(effect);
+            }
+        });
+    }
+
     executeAttack(attacker, defender) {
         let dmg = attacker.damage;
 
@@ -121,13 +136,40 @@ export class CombatService {
 
         // this.causeBleeding(attacker, defender, dmg);
 
-        if (defender.canDodgeAttack()) {
-            defender.dodgeAttack();
+        if (this.roll(defender.dodgeChance)) {
+            // Dodge
             defender.addDamageLogValue('Dodge');
         } else {
+            // Hit
             defender.reduceCastProgress(0.5);
             defender.decreaseHealth(dmg);
-            defender.addDamageLogValue(dmg + ' (-' + 0 + ')');
+            defender.addDamageLogValue(dmg);
+
+            // Apply on hit actions
+            let onHitActions = attacker.getOnHitActions();
+            onHitActions.forEach(action => {
+                if (action.id === 4) { // Poison
+                    this.applyOverTimeEffect(defender, action);
+                }
+            });
+        }
+    }
+
+    executeOverTimeTick(target, overTimeEffect) {
+        if (overTimeEffect.id === 1) { // HOT
+            let numTicks = Math.floor(overTimeEffect.duration);
+            if (numTicks > 0) {
+                let heal = overTimeEffect.power / numTicks;
+                target.increaseHealth(Math.round(heal));
+            }
+        }
+
+        if (overTimeEffect.id === 4) { // Poison
+            let numTicks = Math.floor(overTimeEffect.duration);
+            if (numTicks > 0) {
+                let damage = (overTimeEffect.power / numTicks) * overTimeEffect.stacks;
+                target.decreaseHealth(Math.round(damage));
+            }
         }
     }
 
@@ -181,23 +223,20 @@ export class CombatService {
 
     castCurrentAction() {
         let caster = this.activeAction.owner;
-        // if(target != null) {
-        //     caster.actionTarget = target;
-        // }
         caster.setCastingAction(this.activeAction);
     }
 
     executeAction(attacker) {
         let action = attacker.castingAction;
-        let target = null;// attacker.actionTarget;
+        let target = null;
         if (action.targetType === TargetType.Allied) {
             if (action.targetPriority === TargetPriority.LeastHealth)
                 target = this.findAllyWithLeastHealth(attacker);
         }
 
-        // if(target == null) {
-        //     target = attacker.target;
-        // }
+        if (action.actionType === ActionType.OverTimeEffect || action.actionType === ActionType.DirectAndOverTime) {
+            this.applyOverTimeEffect(target, action);
+        }
 
         if (action.id === 2) { // Heal
             target.increaseHealth(action.power);
@@ -206,17 +245,28 @@ export class CombatService {
 
         if (action.id === 3) { // Taunt
             let targets = this.playerUnits;
-            if (this.isPlayerUnit(attacker))
+            if (this.isPlayerUnit(attacker)) {
                 targets = this.enemyUnits;
+            }
             targets.forEach(t => {
                 t.setTarget(attacker);
             });
-        }        
+        }
 
         attacker.castingAction.startCooldown();
         attacker.castProgress = 0;
         attacker.castingAction = null;
         attacker.actionTarget = null;
+    }
+
+    applyOverTimeEffect(target, action) {
+        let overTimeEffect = new OverTimeEffect(action);
+        if (target.hasOverTimeEffect(overTimeEffect)) {
+            let existingEffect = target.getOverTimeEffect(overTimeEffect);
+            existingEffect.addStack();
+        } else {
+            target.addOverTimeEffect(overTimeEffect);
+        }
     }
 
     isPlayerUnit(unit) {
@@ -230,7 +280,7 @@ export class CombatService {
             allies = this.enemyUnits;
         }
         allies.forEach(u => {
-            if (leastUnit === null || u.health < leastUnit.health) {
+            if (leastUnit === null || u.getHealthPercent() < leastUnit.getHealthPercent()) {
                 leastUnit = u;
             }
         });

@@ -1,5 +1,6 @@
 import {inject} from 'aurelia-framework';
 import {SettingService} from './setting.service';
+import {ActionType} from './action';
 
 export const UnitClass = {
     Warrior: 0,
@@ -25,17 +26,18 @@ export class Unit {
         this.baseArmor = 0;
 
         this.actions = [];
+        this.overTimeEffects = [];
         this.attackTime = settings.defaultAttackSpeed;
         this.hasteRating = 0;
         this.armorPenentration = 0;
-        this.bleedChance = 0;
-        this.bleedDamage = 0;
+        // this.bleedChance = 0;
+        // this.bleedDamage = 0;
 
         this.attackProgress = 0;
-        this.bleedStacks = 0;
-        this.bleedStackDamage = 0;
-        this.dodgeTimer = 0;
-        this.bleedTimer = 0;
+        // this.bleedStacks = 0;
+        // this.bleedStackDamage = 0;
+        // this.dodgeTimer = 0;
+        // this.bleedTimer = 0;
         this.target = null;
         this.castProgress = 0;
         this.castingAction = null;
@@ -48,11 +50,11 @@ export class Unit {
     }
 
     prepareForCombat() {
-        this.dodgeTimer = 0;
-        this.dodgeAttack();
+        // this.dodgeTimer = 0;
+        // this.dodgeAttack();
         this.attackProgress = 0;
-        this.bleedStacks = 0;
-        this.bleedTimer = this.settings.bleedTimer;
+        // this.bleedStacks = 0;
+        // this.bleedTimer = this.settings.bleedTimer;
     }
 
     decreaseHealth(amount) {
@@ -96,14 +98,14 @@ export class Unit {
         }
     }
 
-    canDodgeAttack() {
-        return this.dodgeTimer === 0 && this.dodgeChance > 0;
-    }
+    // canDodgeAttack() {
+    //     return this.dodgeTimer === 0 && this.dodgeChance > 0;
+    // }
 
-    dodgeAttack() {
-        if (this.dodgeChance > 0)
-            this.dodgeTimer = this.settings.defaultAttackSpeed / (this.dodgeChance / 100);
-    }
+    // dodgeAttack() {
+    //     if (this.dodgeChance > 0)
+    //         this.dodgeTimer = this.settings.defaultAttackSpeed / (this.dodgeChance / 100);
+    // }
 
 
     // Virtual methods
@@ -113,12 +115,12 @@ export class Unit {
     getAttackSpeed() { return this.attackTime; }
     getArmorPenentration() { return this.armorPenentration; }
     getHaste() { return this.hasteRating; }
-    getBleedChance() { return this.bleedChance; }
-    getBleedDamagePercent() { return this.bleedDamage; }
+    // getBleedChance() { return this.bleedChance; }
+    // getBleedDamagePercent() { return this.bleedDamage; }
 
     addDamageLogValue(value) {
         this.damageLog.push(value);
-        //console.log(value);
+        console.log(value);
         // var log = this.damageLog;
         // setTimeout(function() {
         //   log.shift();
@@ -137,5 +139,41 @@ export class Unit {
     addAction(action) {
         this.actions.push(action);
         action.owner = this;
+    }
+
+    addOverTimeEffect(overTimeEffect) {
+        this.overTimeEffects.push(overTimeEffect);
+    }
+
+    removeOverTimeEffect(overTimeEffect) {
+        let i = this.overTimeEffects.indexOf(overTimeEffect);
+        this.overTimeEffects.splice(i, 1);
+    }
+
+    hasOverTimeEffect(overTimeEffect) {
+        let exist = false;
+        this.overTimeEffects.forEach(effect => {
+            if (effect.id === overTimeEffect.id)
+                exist = true;
+        });
+        return exist;
+    }
+
+    getOverTimeEffect(overTimeEffect) {
+        let returnEffect = null;
+        this.overTimeEffects.forEach(effect => {
+            if (effect.id === overTimeEffect.id)
+                returnEffect = effect;
+        });
+        return returnEffect;
+    }
+
+    getOnHitActions() {
+        let actions = [];
+        this.actions.forEach(action => {
+            if (action.actionType === ActionType.OnHit)
+                actions.push(action);
+        });
+        return actions;
     }
 }

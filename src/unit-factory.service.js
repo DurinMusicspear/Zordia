@@ -1,7 +1,7 @@
 import {inject} from 'aurelia-framework';
 import {SettingService} from './setting.service';
 import {Unit, UnitClass} from './unit';
-import {Action, TargetType, TargetPriority} from './action';
+import {Action, ActionType, TargetType, TargetPriority} from './action';
 
 @inject(SettingService)
 export class UnitFactoryService {
@@ -34,6 +34,7 @@ export class UnitFactoryService {
                 unit.baseArmor = 0;
                 unit.baseDamage = 15;
                 unit.attackTime = 1.5;
+                unit.addAction(this.createAction(4)); //Poison
                 break;
 
             case UnitClass.Druid:
@@ -63,10 +64,12 @@ export class UnitFactoryService {
         switch (actionId) {
             case 1:
                 action.name = 'HOT';
-                action.castTime = 0;
+                action.castTime = 1;
+                action.duration = 10;
                 action.power = 200;
                 action.targetType = TargetType.Allied;
                 action.targetPriority = TargetPriority.LeastHealth;
+                action.actionType = ActionType.OverTimeEffect;
                 break;
 
             case 2:
@@ -81,6 +84,14 @@ export class UnitFactoryService {
                 action.name = 'Taunt';
                 action.castTime = 1;
                 action.targetType = TargetType.Enemy;
+                break;
+
+            case 4:
+                action.name = 'Poison';
+                action.power = 20;
+                action.actionType = ActionType.OnHit;
+                action.maxStacks = 5;
+                action.duration = 10;
                 break;
 
             default:
