@@ -1,12 +1,15 @@
 .action-bar {
     padding: 10px;
     float: left;
+    clear: both;
 }
 .action-button {
     border: 1px solid #ccc;
     padding: 10px;
     background: #eee;
     cursor: pointer;
+    display: inline-block;
+    margin-right: 10px;
 }
 .action-button:hover {
     background: #ddd;

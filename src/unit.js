@@ -14,6 +14,8 @@ export class Unit {
     constructor(settings) {
         this.settings = settings;
 
+        this.isPlayer = true;
+        this.id = 0;
         this.name = '';
         this.image = '';
         this.level = 1;
@@ -22,7 +24,7 @@ export class Unit {
         this.baseHealth = 400;
         this.baseDamage = 10;
         this.health = 0;
-        this.dodgeChance = 0;
+        this.baseDodge = 0;
         this.baseArmor = 0;
 
         this.actions = [];
@@ -30,14 +32,8 @@ export class Unit {
         this.attackTime = settings.defaultAttackSpeed;
         this.hasteRating = 0;
         this.armorPenentration = 0;
-        // this.bleedChance = 0;
-        // this.bleedDamage = 0;
 
         this.attackProgress = 0;
-        // this.bleedStacks = 0;
-        // this.bleedStackDamage = 0;
-        // this.dodgeTimer = 0;
-        // this.bleedTimer = 0;
         this.target = null;
         this.castProgress = 0;
         this.castingAction = null;
@@ -50,11 +46,9 @@ export class Unit {
     }
 
     prepareForCombat() {
-        // this.dodgeTimer = 0;
-        // this.dodgeAttack();
         this.attackProgress = 0;
-        // this.bleedStacks = 0;
-        // this.bleedTimer = this.settings.bleedTimer;
+        this.castProgress = 0;
+        this.overTimeEffects = [];
     }
 
     decreaseHealth(amount) {
@@ -98,33 +92,27 @@ export class Unit {
         }
     }
 
-    // canDodgeAttack() {
-    //     return this.dodgeTimer === 0 && this.dodgeChance > 0;
-    // }
-
-    // dodgeAttack() {
-    //     if (this.dodgeChance > 0)
-    //         this.dodgeTimer = this.settings.defaultAttackSpeed / (this.dodgeChance / 100);
-    // }
-
-
     // Virtual methods
     get maxHealth() { return this.baseHealth; }
     get damage() { return this.baseDamage; }
     get armor() { return this.baseArmor; }
+    get dodgeChance() { return this.baseDodge; }
     getAttackSpeed() { return this.attackTime; }
     getArmorPenentration() { return this.armorPenentration; }
     getHaste() { return this.hasteRating; }
-    // getBleedChance() { return this.bleedChance; }
-    // getBleedDamagePercent() { return this.bleedDamage; }
 
-    addDamageLogValue(value) {
-        this.damageLog.push(value);
-        console.log(value);
-        // var log = this.damageLog;
-        // setTimeout(function() {
-        //   log.shift();
-        // }, 2000);
+    get armorDamageReduction() {
+        return this.armor / (this.armor + this.settings.armorBaseLevel);
+    }
+
+    get armorDamageReductionPercent() {
+        return this.armorDamageReduction * 100;
+    }
+
+    get totalDamageReductionPercent() {
+        let dmgAfterArmorDR = 1 * (1 - this.armorDamageReduction);
+        let dodgeDR = dmgAfterArmorDR * (this.dodgeChance / 100);
+        return (this.armorDamageReduction + dodgeDR) * 100;
     }
 
     setTarget(unit) {
@@ -143,26 +131,53 @@ export class Unit {
 
     addOverTimeEffect(overTimeEffect) {
         this.overTimeEffects.push(overTimeEffect);
+
+        if (overTimeEffect.id === 7) {
+            this.attackTime = this.attackTime / overTimeEffect.power;
+        }
+
+        if (overTimeEffect.id === 8) { // Shield wall
+            this.baseArmor += overTimeEffect.power;
+        }
     }
 
     removeOverTimeEffect(overTimeEffect) {
         let i = this.overTimeEffects.indexOf(overTimeEffect);
-        this.overTimeEffects.splice(i, 1);
+
+        if (i !== -1) {
+            this.overTimeEffects.splice(i, 1);
+
+            if (overTimeEffect.id === 7) { // Frenzy
+                this.attackTime = this.attackTime * overTimeEffect.power;
+            }
+
+            if (overTimeEffect.id === 8) { // Shield wall
+                this.baseArmor -= overTimeEffect.power;
+            }
+        }
     }
 
     hasOverTimeEffect(overTimeEffect) {
+        return this.hasOverTimeEffectById(overTimeEffect.id);
+    }
+
+    hasOverTimeEffectById(effectId) {
         let exist = false;
         this.overTimeEffects.forEach(effect => {
-            if (effect.id === overTimeEffect.id)
+            if (effect.id === effectId)
                 exist = true;
         });
         return exist;
     }
 
     getOverTimeEffect(overTimeEffect) {
+        return this.getOverTimeEffectById(overTimeEffect.id);
+    }
+
+    getOverTimeEffectById(effectId) {
         let returnEffect = null;
         this.overTimeEffects.forEach(effect => {
-            if (effect.id === overTimeEffect.id)
+            if (effect.id === effectId)
                 returnEffect = effect;
         });
         return returnEffect;

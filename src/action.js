@@ -5,7 +5,8 @@ export const TargetType = {
 };
 
 export const TargetPriority = {
-    LeastHealth: 0
+    LeastHealth: 0,
+    CurrentTarget: 1
 };
 
 export const ActionType = {

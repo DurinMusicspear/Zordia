@@ -2,12 +2,14 @@
 import {inject} from 'aurelia-framework';
 import {OverTimeEffect, ActionType, TargetType, TargetPriority} from './action';
 import {SettingService} from './setting.service';
+import {CombatLogService} from './combat-log.service';
 
-@inject(SettingService)
+@inject(SettingService, CombatLogService)
 export class CombatService {
 
-    constructor(settings) {
+    constructor(settings, combatLog) {
         this.settings = settings;
+        this.combatLog = combatLog;
         this.playerUnits = [];
         this.enemyUnits = [];
         this.activeAction = null;
@@ -51,15 +53,32 @@ export class CombatService {
                 this.checkPlayerTargetDead(unit);
                 this.progressAttack(unit, dt);
                 this.processOverTimeEffects(unit, dt);
+                this.reduceTimers(unit, dt);
             }
         });
         this.enemyUnits.forEach(unit => {
             if (unit.health > 0) {
+                this.runEnemyAI(unit);
                 this.checkEnemyTargetDead(unit);
                 this.progressAttack(unit, dt);
                 this.processOverTimeEffects(unit, dt);
+                this.reduceTimers(unit, dt);
             }
         });
+    }
+
+    runEnemyAI(unit) {
+        if (unit.castingAction === null) {
+            let actionToCast = null;
+            unit.actions.forEach(action => {
+                if (action.cooldownRemaining === 0) {
+                    actionToCast = action;
+                }
+            });
+            if (actionToCast !== null) {
+                unit.setCastingAction(actionToCast);
+            }
+        }
     }
 
     checkPlayerTargetDead(player) {
@@ -130,9 +149,12 @@ export class CombatService {
         //     block = 0;
 
         // dmg -= block;
+        dmg = dmg * (1 - defender.armorDamageReduction);
 
         if (dmg < 0)
             dmg = 0;
+
+        dmg = Math.round(dmg);
 
         // this.causeBleeding(attacker, defender, dmg);
 
@@ -143,8 +165,7 @@ export class CombatService {
             // Hit
             defender.reduceCastProgress(0.5);
             defender.decreaseHealth(dmg);
-            defender.addDamageLogValue(dmg);
-
+            
             // Apply on hit actions
             let onHitActions = attacker.getOnHitActions();
             onHitActions.forEach(action => {
@@ -152,11 +173,13 @@ export class CombatService {
                     this.applyOverTimeEffect(defender, action);
                 }
             });
+
+            this.combatLog.logDamage(attacker, defender, dmg);
         }
     }
 
     executeOverTimeTick(target, overTimeEffect) {
-        if (overTimeEffect.id === 1) { // HOT
+        if (overTimeEffect.id === 1 || overTimeEffect.id === 6) { // HOT
             let numTicks = Math.floor(overTimeEffect.duration);
             if (numTicks > 0) {
                 let heal = overTimeEffect.power / numTicks;
@@ -168,7 +191,9 @@ export class CombatService {
             let numTicks = Math.floor(overTimeEffect.duration);
             if (numTicks > 0) {
                 let damage = (overTimeEffect.power / numTicks) * overTimeEffect.stacks;
-                target.decreaseHealth(Math.round(damage));
+                damage = Math.round(damage);
+                target.decreaseHealth(damage);
+                this.combatLog.logDamage(attacker, defender, damage);
             }
         }
     }
@@ -184,19 +209,19 @@ export class CombatService {
     }
 
     reduceTimers(unit, dt) {
-        if (unit.dodgeChance > 0 && unit.dodgeTimer > 0) {
-            unit.dodgeTimer -= dt;
-            if (unit.dodgeTimer < 0)
-                unit.dodgeTimer = 0;
-        }
+        // if (unit.dodgeChance > 0 && unit.dodgeTimer > 0) {
+        //     unit.dodgeTimer -= dt;
+        //     if (unit.dodgeTimer < 0)
+        //         unit.dodgeTimer = 0;
+        // }
 
-        if (unit.bleedStacks > 0) {
-            unit.bleedTimer -= dt;
-            if (unit.bleedTimer <= 0) {
-                this.applyBleedTick(unit);
-                unit.bleedTimer += this.settings.bleedTimer;
-            }
-        }
+        // if (unit.bleedStacks > 0) {
+        //     unit.bleedTimer -= dt;
+        //     if (unit.bleedTimer <= 0) {
+        //         this.applyBleedTick(unit);
+        //         unit.bleedTimer += this.settings.bleedTimer;
+        //     }
+        // }
 
         unit.actions.forEach(action => {
             action.reduceCooldown(dt);
@@ -229,7 +254,12 @@ export class CombatService {
     executeAction(attacker) {
         let action = attacker.castingAction;
         let target = null;
-        if (action.targetType === TargetType.Allied) {
+
+        if (action.targetType === TargetType.Self) {
+            target = attacker;
+        } else if (action.targetPriority === TargetPriority.CurrentTarget) {
+            target = attacker.target;
+        } else if (action.targetType === TargetType.Allied) {
             if (action.targetPriority === TargetPriority.LeastHealth)
                 target = this.findAllyWithLeastHealth(attacker);
         }
@@ -251,6 +281,19 @@ export class CombatService {
             targets.forEach(t => {
                 t.setTarget(attacker);
             });
+        }
+
+        if (action.id === 5) { // Consume poison
+            let poisonEffect = target.getOverTimeEffectById(4);
+            target.removeOverTimeEffect(poisonEffect);
+            let dmg = poisonEffect.stacks * action.power;
+            target.decreaseHealth(dmg);
+            target.addDamageLogValue(dmg + ' (P)');
+        }
+
+        if (action.id === 6) { // Heal
+            target.increaseHealth(Math.floor(action.power / 2));
+            target.addDamageLogValue('+' + action.power);
         }
 
         attacker.castingAction.startCooldown();
@@ -280,7 +323,7 @@ export class CombatService {
             allies = this.enemyUnits;
         }
         allies.forEach(u => {
-            if (leastUnit === null || u.getHealthPercent() < leastUnit.getHealthPercent()) {
+            if (u.health > 0 && (leastUnit === null || u.getHealthPercent() < leastUnit.getHealthPercent())) {
                 leastUnit = u;
             }
         });

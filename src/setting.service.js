@@ -1,5 +1,7 @@
 export const SettingService = {
 
+    armorBaseLevel: 100,
+
     // Player
     baseHealth: 50,
     healthPerToughness: 10,

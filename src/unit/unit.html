@@ -15,6 +15,9 @@
         <div class="over-time-effects" repeat.for="effect of unit.overTimeEffects">
             ${effect.name}(${effect.stacks}): ${effect.remainingDuration | numberFormat: '0'}
         </div>
+
+        ${unit.armorDamageReductionPercent | numberFormat: '0.00'}
+        ${unit.totalDamageReductionPercent | numberFormat: '0.00'}
         <!--<span *ngIf="getTarget()">{{getTarget().name}}</span>-->
 
         <!--<span>{{unit.attackProgress | number: '.1-1' }}</span><br>

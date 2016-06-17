@@ -1,29 +1,25 @@
 import {inject} from 'aurelia-framework';
-import {Unit, UnitClass} from './unit';
+import {UnitClass} from './unit';
+import {ActionType} from './action';
 import {SettingService} from './setting.service';
 import {CombatService} from './combat.service';
 import {UnitFactoryService} from './unit-factory.service';
+import {MonsterFactoryService} from './monster-factory.service';
 
-@inject(SettingService, CombatService, UnitFactoryService)
+@inject(SettingService, CombatService, UnitFactoryService, MonsterFactoryService)
 export class App {
 
-    constructor(settings, combat, unitFactory) {
+    constructor(settings, combat, unitFactory, monsterFactory) {
         this.settings = settings;
         this.combat = combat;
         this.unitFactory = unitFactory;
+        this.monsterFactory = monsterFactory;
 
         this.playerUnits = [];
         this.enemyUnits = [];
         this.actions = [];
 
-        for (let i = 0; i < 3; i++) {
-            let enemy = new Unit(this.settings);
-            enemy.name = 'monster' + i;
-            enemy.image = '11a89b2cf393f23c3f6c11dec106c2e8.jpg';
-            enemy.dodgeChance = 25;
-            this.enemyUnits.push(enemy);
-            enemy.resetHealth();
-        }
+        this.createMonsterUnit(1);
 
         this.createPlayerUnit(UnitClass.Warrior);
         this.createPlayerUnit(UnitClass.Rogue);
@@ -35,10 +31,16 @@ export class App {
         this.myKeyupCallback = this.hotkeyPress.bind(this);
     }
 
+    createMonsterUnit(monsterId) {
+        let monster = this.monsterFactory.createMonster(monsterId);
+        this.enemyUnits.push(monster);
+    }
+
     createPlayerUnit(unitClass) {
         let player = this.unitFactory.createUnit(unitClass);
         player.actions.forEach(action => {
-            this.actions.push(action);
+            if (action.actionType !== ActionType.OnHit)
+                this.actions.push(action);
         });
         this.playerUnits.push(player);
     }

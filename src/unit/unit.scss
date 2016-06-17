@@ -38,20 +38,3 @@ $castBarColor: rgb(0,0,200);
     width: 50%;
     float: left;
 }
-
-  .portrait.au-enter-active {
-    -webkit-animation:0.2s increase-size;
-    animation:0.2s increase-size;
-  }
-  @keyframes decrease-size {
-    from { height: 200px; }
-    to { height: 0px; }
-  }
-  @-webkit-keyframes decrease-size{
-    from { height: 200px; }
-    to { height: 0px; }
-  }
-  .portrait.au-leave-active {
-    -webkit-animation:0.2s decrease-size;
-    animation:0.2s decrease-size;
-  }
