@@ -1,3 +1,3 @@
 export function configure(aurelia) {
-    aurelia.globalResources('./number-format');
+    aurelia.globalResources('./number-format', './sort');
 }

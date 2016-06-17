@@ -47,13 +47,17 @@ export class CombatService {
         // this.meter.tick();
     }
 
+    timestamp() {
+        return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+    }
+
     tick(dt) {
         this.playerUnits.forEach(unit => {
             if (unit.health > 0) {
                 this.checkPlayerTargetDead(unit);
                 this.progressAttack(unit, dt);
                 this.processOverTimeEffects(unit, dt);
-                this.reduceTimers(unit, dt);
+                this.reduceCooldowns(unit, dt);
             }
         });
         this.enemyUnits.forEach(unit => {
@@ -62,7 +66,7 @@ export class CombatService {
                 this.checkEnemyTargetDead(unit);
                 this.progressAttack(unit, dt);
                 this.processOverTimeEffects(unit, dt);
-                this.reduceTimers(unit, dt);
+                this.reduceCooldowns(unit, dt);
             }
         });
     }
@@ -142,13 +146,6 @@ export class CombatService {
     executeAttack(attacker, defender) {
         let dmg = attacker.damage;
 
-        //var block = defender.getArmor();
-        //block -= attacker.getArmorPenentration();
-
-        // if (block < 0)
-        //     block = 0;
-
-        // dmg -= block;
         dmg = dmg * (1 - defender.armorDamageReduction);
 
         if (dmg < 0)
@@ -156,11 +153,9 @@ export class CombatService {
 
         dmg = Math.round(dmg);
 
-        // this.causeBleeding(attacker, defender, dmg);
-
         if (this.roll(defender.dodgeChance)) {
             // Dodge
-            defender.addDamageLogValue('Dodge');
+            // defender.addDamageLogValue('Dodge');
         } else {
             // Hit
             defender.reduceCastProgress(0.5);
@@ -170,7 +165,7 @@ export class CombatService {
             let onHitActions = attacker.getOnHitActions();
             onHitActions.forEach(action => {
                 if (action.id === 4) { // Poison
-                    this.applyOverTimeEffect(defender, action);
+                    this.applyOverTimeEffect(attacker, defender, action);
                 }
             });
 
@@ -193,49 +188,15 @@ export class CombatService {
                 let damage = (overTimeEffect.power / numTicks) * overTimeEffect.stacks;
                 damage = Math.round(damage);
                 target.decreaseHealth(damage);
-                this.combatLog.logDamage(attacker, defender, damage);
+                this.combatLog.logDamage(overTimeEffect.caster, target, damage);
             }
         }
     }
 
-    causeBleeding(attacker, defender, damage) {
-        if (attacker.getBleedChance() === 0)
-            return;
-
-        if (this.roll(attacker.getBleedChance())) {
-            defender.bleedStacks += 1;
-            defender.bleedStackDamage = damage * attacker.getBleedDamagePercent();
-        }
-    }
-
-    reduceTimers(unit, dt) {
-        // if (unit.dodgeChance > 0 && unit.dodgeTimer > 0) {
-        //     unit.dodgeTimer -= dt;
-        //     if (unit.dodgeTimer < 0)
-        //         unit.dodgeTimer = 0;
-        // }
-
-        // if (unit.bleedStacks > 0) {
-        //     unit.bleedTimer -= dt;
-        //     if (unit.bleedTimer <= 0) {
-        //         this.applyBleedTick(unit);
-        //         unit.bleedTimer += this.settings.bleedTimer;
-        //     }
-        // }
-
+    reduceCooldowns(unit, dt) {
         unit.actions.forEach(action => {
             action.reduceCooldown(dt);
         });
-    }
-
-    applyBleedTick(unit) {
-        let bleed = unit.bleedStackDamage * unit.bleedStacks;
-        unit.decreaseHealth(bleed);
-        unit.addDamageLogValue(bleed + ' (Bleed)');
-    }
-
-    timestamp() {
-        return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     }
 
     roll(percentChance) {
@@ -265,12 +226,12 @@ export class CombatService {
         }
 
         if (action.actionType === ActionType.OverTimeEffect || action.actionType === ActionType.DirectAndOverTime) {
-            this.applyOverTimeEffect(target, action);
+            this.applyOverTimeEffect(attacker, target, action);
         }
 
         if (action.id === 2) { // Heal
             target.increaseHealth(action.power);
-            target.addDamageLogValue('+' + action.power);
+            // target.addDamageLogValue('+' + action.power);
         }
 
         if (action.id === 3) { // Taunt
@@ -285,15 +246,17 @@ export class CombatService {
 
         if (action.id === 5) { // Consume poison
             let poisonEffect = target.getOverTimeEffectById(4);
-            target.removeOverTimeEffect(poisonEffect);
-            let dmg = poisonEffect.stacks * action.power;
-            target.decreaseHealth(dmg);
-            target.addDamageLogValue(dmg + ' (P)');
+            if (poisonEffect !== null) {
+                target.removeOverTimeEffect(poisonEffect);
+                let dmg = poisonEffect.stacks * action.power;
+                target.decreaseHealth(dmg);
+                this.combatLog.logDamage(attacker, target, dmg);
+            }
         }
 
         if (action.id === 6) { // Heal
             target.increaseHealth(Math.floor(action.power / 2));
-            target.addDamageLogValue('+' + action.power);
+            // target.addDamageLogValue('+' + action.power);
         }
 
         attacker.castingAction.startCooldown();
@@ -302,8 +265,8 @@ export class CombatService {
         attacker.actionTarget = null;
     }
 
-    applyOverTimeEffect(target, action) {
-        let overTimeEffect = new OverTimeEffect(action);
+    applyOverTimeEffect(caster, target, action) {
+        let overTimeEffect = new OverTimeEffect(caster, action);
         if (target.hasOverTimeEffect(overTimeEffect)) {
             let existingEffect = target.getOverTimeEffect(overTimeEffect);
             existingEffect.addStack();

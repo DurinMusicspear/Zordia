@@ -1,0 +1,32 @@
+.combat-log {
+    float: left;
+    width: 100%;
+}
+.combat-log-row {
+    float: left;
+    clear: both;
+}
+.combat-log {
+    .progress-bar {
+        border-radius: 0;
+        box-shadow: none;
+        display: inline-block;
+        vertical-align: bottom;
+    }
+    .bar {
+        box-shadow: none;
+        background-color: orange;
+    }
+    .progress-bar-label {
+        right: 5px;
+        text-align: right;
+        width: auto;
+        color: black;
+    }
+    
+    .row-label {
+        min-width: 120px;
+        display: inline-block;
+        text-align: right;
+    }
+}

@@ -13,7 +13,7 @@ export class MonsterFactoryService {
 
     createMonster(monsterId) {
         let unit = new Unit(this.settings);
-        unit.id = monsterId;
+        unit.id = monsterId + 10;
         unit.isPlayer = false;
 
         switch (monsterId) {

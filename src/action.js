@@ -47,7 +47,7 @@ export class Action {
 
 export class OverTimeEffect {
 
-    constructor(action) {
+    constructor(caster, action) {
         this.id = action.id;
         this.duration = action.duration;
         this.name = action.name;
@@ -57,6 +57,7 @@ export class OverTimeEffect {
         this.stacks = 1;
         this.maxStacks = action.maxStacks;
         this.tickReady = false;
+        this.caster = caster;
     }
 
     addStack() {

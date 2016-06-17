@@ -10,6 +10,7 @@
         inset 0px 0px 1px rgba(0,0,0,0.4);
     color: white;
     text-align: center;
+    overflow: hidden;
 }
 .bar {
     height: 20px;
@@ -24,4 +25,11 @@
 .animate-bar .bar {
     transition: 0.2s ease-out;
     transition-property: width;
+}
+.progress-bar-label {
+    position: absolute;
+    width: 100%;
+    top: 2px;
+    left: 0;
+    text-align: center;
 }

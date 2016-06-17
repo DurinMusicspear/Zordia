@@ -41,13 +41,16 @@ export class CombatLogService {
     }
 
     createNewUnit(unit) {
-        return {
+        let logUnit = {
             id: unit.id,
+            unit: unit,
             totalDamage: 0,
             totalHealing: 0,
             totalDamageTaken: 0,
             totalHealingTaken: 0
         };
+        this.units.push(logUnit);
+        return logUnit;
     }
 
     getUnitById(unitId) {
@@ -60,10 +63,10 @@ export class CombatLogService {
     }
 
     get statisticsPerUnit() {
-        return units;
+        return this.units;
     }
 
     get allLogEntries() {
-        return logEntries;
+        return this.logEntries;
     }
 }

@@ -14,6 +14,7 @@ export class UnitFactoryService {
     createUnit(unitClass) {
         let unit = new Unit(this.settings);
         unit.unitClass = unitClass;
+        unit.id = unitClass + 1;
 
         switch (unitClass) {
             case UnitClass.Warrior:
@@ -22,7 +23,7 @@ export class UnitFactoryService {
                 unit.baseHealth = 300;
                 unit.baseDodge = 20;
                 unit.baseArmor = 100;
-                unit.baseDamage = 12;
+                unit.baseDamage = 50;
                 unit.attackTime = 3;
                 unit.addAction(this.actionFactory.createAction(3)); // Taunt
                 unit.addAction(this.actionFactory.createAction(8)); // Shield wall
@@ -34,7 +35,7 @@ export class UnitFactoryService {
                 unit.baseHealth = 200;
                 unit.baseDodge = 25;
                 unit.baseArmor = 10;
-                unit.baseDamage = 15;
+                unit.baseDamage = 20;
                 unit.attackTime = 1.5;
                 unit.addAction(this.actionFactory.createAction(4)); // Poison
                 unit.addAction(this.actionFactory.createAction(5)); // Consume poison
@@ -46,7 +47,7 @@ export class UnitFactoryService {
                 unit.baseHealth = 250;
                 unit.baseDodge = 10;
                 unit.baseArmor = 25;
-                unit.baseDamage = 8;
+                unit.baseDamage = 30;
                 unit.attackTime = 2;
                 unit.addAction(this.actionFactory.createAction(1)); // HOT
                 unit.addAction(this.actionFactory.createAction(2)); // Heal
