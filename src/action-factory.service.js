@@ -84,6 +84,17 @@ export class ActionFactoryService {
                 action.actionType = ActionType.OverTimeEffect;
                 break;
 
+            case 9:
+                action.name = 'Poison sting';
+                action.castTime = 1;
+                action.power = 300;
+                action.duration = 15;
+                action.cooldown = 10;
+                action.targetType = TargetType.Enemy;
+                action.targetPriority = TargetPriority.Random;
+                action.actionType = ActionType.OverTimeEffect;
+                break;
+
             default:
                 break;
         }

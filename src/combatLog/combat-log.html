@@ -8,8 +8,8 @@
         <div class="combat-log-row" repeat.for="unit of units | sort:'totalDamage' & signal:'sort-signal'">
             <span class="row-label">${unit.unit.name}</span>
             <div class="progress-bar">
-                <div class="bar" css="width: ${totalDamagePercent(unit)};"></div>
-                <div class="progress-bar-label">${unit.totalDamage} (${totalDamagePercent(unit)})</div>
+                <div class="bar" css="width: ${totalDamagePercent(unit) & signal:'sort-signal'};"></div>
+                <div class="progress-bar-label">${unit.totalDamage & signal:'sort-signal'} (${totalDamagePercent(unit) & signal:'sort-signal'})</div>
             </div>
             <!--<progress-bar class="" current-value.bind="unit.totalDamage" max-value.bind="maxUnitDamage"></progress-bar>-->
         </div>
@@ -20,8 +20,8 @@
         <div class="combat-log-row" repeat.for="unit of units | sort:'totalDamageTaken' & signal:'sort-signal'">
             <span class="row-label">${unit.unit.name}</span>
             <div class="progress-bar">
-                <div class="bar" css="width: ${totalDamageTakenPercent(unit)};"></div>
-                <div class="progress-bar-label">${unit.totalDamageTaken} (${totalDamageTakenPercent(unit)})</div>
+                <div class="bar" css="width: ${totalDamageTakenPercent(unit) & signal:'sort-signal'};"></div>
+                <div class="progress-bar-label">${unit.totalDamageTaken & signal:'sort-signal'} (${totalDamageTakenPercent(unit) & signal:'sort-signal'})</div>
             </div>
         </div>
     </div>

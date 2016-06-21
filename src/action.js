@@ -6,7 +6,8 @@ export const TargetType = {
 
 export const TargetPriority = {
     LeastHealth: 0,
-    CurrentTarget: 1
+    CurrentTarget: 1,
+    Random: 2
 };
 
 export const ActionType = {

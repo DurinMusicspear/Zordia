@@ -1,3 +1,4 @@
+@import './styles/_variables';
 $castBarColor: rgb(0,0,200);
 
 .bar-container {
@@ -12,6 +13,7 @@ $castBarColor: rgb(0,0,200);
     border-radius: 100%;
     // box-shadow: 1px 1px 2px 0px rgba(0, 0, 0, 0.4);
     margin-right: 15px;
+    position: relative;
 }
 .unit-container {
     border: 1px solid transparent;
@@ -37,4 +39,45 @@ $castBarColor: rgb(0,0,200);
 .enemy-container {
     width: 50%;
     float: left;
+}
+.unit-name {
+    font-family: $headerFont;
+    font-size: 18px;
+}
+
+
+.log-item {
+    color: yellow;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+    font-size: 24px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+}
+// .log-item.au-enter {
+//     opacity: 0 !important;
+// }
+
+.log-item.au-enter-active {
+    animation: fadeOut 2s, slideUp 2s;
+}
+
+// .log-item.au-leave-active {
+//     animation: fadeOut 2s;
+// }
+
+/* CSS3-Animations */
+@keyframes fadeIn {
+    0%   { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@keyframes fadeOut {
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes slideUp {
+    0%   { bottom: 0; }
+    100% { bottom: 100px; }
 }

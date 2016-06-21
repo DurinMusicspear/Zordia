@@ -1,12 +1,49 @@
-import {inject, bindable} from 'aurelia-framework';
+import {inject, bindable, BindingEngine} from 'aurelia-framework';
 import {CombatService} from '../combat.service';
+import {CombatLogService} from '../combat-log.service';
 
-@inject(CombatService)
+@inject(BindingEngine, CombatService, CombatLogService)
 export class UnitCustomElement {
     @bindable unit;
 
-    constructor(combat) {
+    constructor(bindingEngine, combat, combatLog) {
+        this.bindingEngine = bindingEngine;
         this.combat = combat;
+        this.combatLog = combatLog;
+        this.unit = null;
+        this.combatLogDisplay = [];
+
+        let callback = this.onChangeUnit.bind(this);
+        let subscription = this.bindingEngine
+            .propertyObserver(this, 'unit')
+            .subscribe(callback);
+    }
+
+    onChangeUnit(newValue, oldValue) {
+        if (this.unit !== null) {
+            let callback = this.onAddCombatLogItem.bind(this);
+            let unitLog = this.combatLog.createNewUnit(this.unit);
+            this.combatLogItems = unitLog.displayLog;
+            let subscription = this.bindingEngine
+                .collectionObserver(this.combatLogItems)
+                .subscribe(callback);
+        }
+    }
+
+    onAddCombatLogItem(splices) {
+        splices.forEach(splice => {
+            for (let i = splice.index; i < splice.index + splice.addedCount; i++) {
+                // console.log(this.combatLogItems[i]);
+                let displayItem = {
+                    text: '-' + this.combatLogItems[i].damage,
+                    xPos: this.getRandomInt(0, 75) + '%'
+                };
+                this.combatLogDisplay.push(displayItem);
+                setTimeout(() => {
+                    this.combatLogDisplay.shift();
+                }, 2000);
+            }
+        });
     }
 
     selectUnit() {
@@ -32,5 +69,9 @@ export class UnitCustomElement {
 
     get unitImage() {
         return 'url(images/' + this.unit.image + ')';
+    }
+
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 }

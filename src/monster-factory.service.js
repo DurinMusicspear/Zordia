@@ -23,9 +23,10 @@ export class MonsterFactoryService {
                 unit.baseHealth = 3000;
                 unit.baseDodge = 30;
                 unit.baseArmor = 0;
-                unit.baseDamage = 80;
+                unit.baseDamage = 60;
                 unit.attackTime = 1;
                 unit.addAction(this.actionFactory.createAction(7)); // Frenzy
+                unit.addAction(this.actionFactory.createAction(9)); // Poison sting
                 break;
 
             default:

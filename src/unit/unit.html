@@ -3,11 +3,15 @@
     <require from="../progressBar/progress-bar"></require>
     <require from="../castBar/cast-bar"></require>
 
-    <div class="unit-container" [class.selected]="isSelectedUnit()" (click)="selectUnit()">
+    <div class="unit-container">
         
-        <div class="portrait au-animate" css="background-image: ${unitImage};"></div>
+        <div class="portrait" css="background-image: ${unitImage};">
+            <div class="log-item au-animate" repeat.for="logItem of combatLogDisplay" css="left: ${logItem.xPos};">
+                ${logItem.text}
+            </div>
+        </div>
         <div class="bar-container">
-            <b>${unit.name}</b>
+            <span class="unit-name">${unit.name}</span>
             <progress-bar class="health-bar animate-bar" current-value.bind="unit.health" max-value.bind="unit.maxHealth"></progress-bar>
             <cast-bar class="casting-bar" progress.bind="unit.castProgress" action.bind="unit.castingAction"></cast-bar>
         </div>
@@ -18,11 +22,11 @@
 
         ${unit.armorDamageReductionPercent | numberFormat: '0.00'}
         ${unit.totalDamageReductionPercent | numberFormat: '0.00'}
-        <!--<span *ngIf="getTarget()">{{getTarget().name}}</span>-->
 
-        <!--<span>{{unit.attackProgress | number: '.1-1' }}</span><br>
-        <span>{{unit.attackTime}}</span><br>-->
-        <!--<span>{{jsonUnit()}}</span><br>-->
-
+        <div>
+            <div repeat.for="threat of unit.threats">
+                ${threat.unit.name}: ${threat.threat}
+            </div>
+        </div>
     </div>
 </template>

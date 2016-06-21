@@ -10,6 +10,11 @@ export class CombatLogService {
         this.units = [];
     }
 
+    clearLog() {
+        this.units = [];
+        this.logEntries = [];
+    }
+
     logDamage(attacker, defender, damage) {
         let entry = {
             attacker: attacker.id,
@@ -18,18 +23,19 @@ export class CombatLogService {
             damage: damage
         };
         this.logEntries.push(entry);
-        this.logDamageDoneByUnit(attacker, damage);
-        this.logDamageTakenByUnit(defender, damage);
+        this.logDamageDoneByUnit(attacker, entry);
+        this.logDamageTakenByUnit(defender, entry);
     }
 
-    logDamageDoneByUnit(unit, damage) {
+    logDamageDoneByUnit(unit, entry) {
         let logUnit = this.getExistingOrNewLogUnit(unit);
-        logUnit.totalDamage += damage;
+        logUnit.totalDamage += entry.damage;
     }
 
-    logDamageTakenByUnit(unit, damage) {
+    logDamageTakenByUnit(unit, entry) {
         let logUnit = this.getExistingOrNewLogUnit(unit);
-        logUnit.totalDamageTaken += damage;
+        logUnit.totalDamageTaken += entry.damage;
+        logUnit.displayLog.push(entry);
     }
 
     getExistingOrNewLogUnit(unit) {
@@ -47,7 +53,8 @@ export class CombatLogService {
             totalDamage: 0,
             totalHealing: 0,
             totalDamageTaken: 0,
-            totalHealingTaken: 0
+            totalHealingTaken: 0,
+            displayLog: []
         };
         this.units.push(logUnit);
         return logUnit;

@@ -56,18 +56,32 @@ export class App {
     }
 
     hotkeyPress(event) {
-        switch (event.keyCode) {
-            case 81:
-                this.combat.setActiveAction(this.actions[0]);
+        console.log(event);
+
+        switch (event.code) {
+            case 'KeyQ':
+                this.combat.castAction(this.actions[0]);
                 break;
-            case 87:
-                this.combat.setActiveAction(this.actions[1]);
+            case 'KeyW':
+                this.combat.castAction(this.actions[1]);
                 break;
-            case 69:
-                this.combat.setActiveAction(this.actions[2]);
+            case 'KeyE':
+                this.combat.castAction(this.actions[2]);
                 break;
-            case 82:
-                this.combat.setActiveAction(this.actions[3]);
+            case 'KeyR':
+                this.combat.castAction(this.actions[3]);
+                break;
+            case 'KeyA':
+                this.combat.castAction(this.actions[4]);
+                break;
+            case 'KeyS':
+                this.combat.castAction(this.actions[5]);
+                break;
+            case 'KeyD':
+                this.combat.castAction(this.actions[6]);
+                break;
+            case 'KeyF':
+                this.combat.castAction(this.actions[7]);
                 break;
 
             default:

@@ -73,15 +73,27 @@ export class CombatService {
 
     runEnemyAI(unit) {
         if (unit.castingAction === null) {
-            let actionToCast = null;
-            unit.actions.forEach(action => {
-                if (action.cooldownRemaining === 0) {
-                    actionToCast = action;
-                }
-            });
-            if (actionToCast !== null) {
-                unit.setCastingAction(actionToCast);
+            if (unit.actions[0].cooldownRemaining === 0) {
+                unit.setCastingAction(unit.actions[0]);
+            } else if (unit.actions[1].cooldownRemaining === 0) {
+                unit.setCastingAction(unit.actions[1]);
             }
+            // let actionToCast = null;
+            // unit.actions.forEach(action => {
+            //     if (action.cooldownRemaining === 0) {
+            //         actionToCast = action;
+            //     }
+            // });
+            // if (actionToCast !== null) {
+            //     unit.setCastingAction(actionToCast);
+            // }
+        }
+
+        let highestThreat = unit.findHighestThreatExcludingTarget();
+        let targetThreat = unit.findThreat(unit.target);
+        if (highestThreat !== null && targetThreat !== null &&
+            highestThreat.threat > targetThreat.threat * 1.1) {
+            unit.target = highestThreat.unit;
         }
     }
 
@@ -160,7 +172,7 @@ export class CombatService {
             // Hit
             defender.reduceCastProgress(0.5);
             defender.decreaseHealth(dmg);
-            
+
             // Apply on hit actions
             let onHitActions = attacker.getOnHitActions();
             onHitActions.forEach(action => {
@@ -170,6 +182,7 @@ export class CombatService {
             });
 
             this.combatLog.logDamage(attacker, defender, dmg);
+            defender.increaseThreat(attacker, dmg);
         }
     }
 
@@ -182,13 +195,14 @@ export class CombatService {
             }
         }
 
-        if (overTimeEffect.id === 4) { // Poison
+        if (overTimeEffect.id === 4 || overTimeEffect.id === 9) { // Poison
             let numTicks = Math.floor(overTimeEffect.duration);
             if (numTicks > 0) {
                 let damage = (overTimeEffect.power / numTicks) * overTimeEffect.stacks;
                 damage = Math.round(damage);
                 target.decreaseHealth(damage);
                 this.combatLog.logDamage(overTimeEffect.caster, target, damage);
+                target.increaseThreat(overTimeEffect.caster, damage);
             }
         }
     }
@@ -212,6 +226,11 @@ export class CombatService {
         caster.setCastingAction(this.activeAction);
     }
 
+    castAction(action) {
+        this.activeAction = action;
+        this.castCurrentAction();
+    }
+
     executeAction(attacker) {
         let action = attacker.castingAction;
         let target = null;
@@ -223,6 +242,10 @@ export class CombatService {
         } else if (action.targetType === TargetType.Allied) {
             if (action.targetPriority === TargetPriority.LeastHealth)
                 target = this.findAllyWithLeastHealth(attacker);
+        } else if (action.targetType === TargetType.Enemy) {
+            if (action.targetPriority === TargetPriority.Random) {
+                target = this.findRandomEnemy(attacker);
+            }
         }
 
         if (action.actionType === ActionType.OverTimeEffect || action.actionType === ActionType.DirectAndOverTime) {
@@ -241,6 +264,7 @@ export class CombatService {
             }
             targets.forEach(t => {
                 t.setTarget(attacker);
+                t.setThreatEqualToHighestThreat(attacker);
             });
         }
 
@@ -251,6 +275,7 @@ export class CombatService {
                 let dmg = poisonEffect.stacks * action.power;
                 target.decreaseHealth(dmg);
                 this.combatLog.logDamage(attacker, target, dmg);
+                target.increaseThreat(attacker, dmg);
             }
         }
 
@@ -291,5 +316,27 @@ export class CombatService {
             }
         });
         return leastUnit;
+    }
+
+    findRandomEnemy(unit) {
+        let enemies = this.playerUnits;
+        if (this.isPlayerUnit(unit)) {
+            enemies = this.enemyUnits;
+        }
+        let possibleTargets = [];
+        enemies.forEach(enemy => {
+            if (enemy.health > 0) {
+                possibleTargets.push(enemy);
+            }
+        });
+
+        if (possibleTargets.length > 0)
+            return possibleTargets[this.getRandomIntInclusive(0, possibleTargets.length - 1)];
+
+        return null;
+    }
+
+    getRandomIntInclusive(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 }

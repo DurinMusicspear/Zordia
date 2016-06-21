@@ -1,3 +1,9 @@
+@import './styles/_variables';
+
 body {
     background: #f6f6f6;
+}
+h1, h2, h3 {
+    font-family: $headerFont;
+    font-weight: 400;
 }

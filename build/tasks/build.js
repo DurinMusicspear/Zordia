@@ -36,12 +36,12 @@ gulp.task('build-html', function() {
 gulp.task('build-css', function() {
   return gulp.src(paths.css)
     .pipe(plumber())
-    .pipe(changed(paths.output, {extension: '.scss'}))
+    .pipe(changed(paths.output, {extension: '.css'}))
     .pipe(sourcemaps.init())
     .pipe(sass())
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest(paths.output))
-    .pipe(browserSync.stream());
+    .pipe(sourcemaps.write('.', {includeContent: true, sourceRoot: '/src'}))
+    .pipe(gulp.dest(paths.output));
+    // .pipe(browserSync.stream());
 });
 
 // this task calls the clean task (located

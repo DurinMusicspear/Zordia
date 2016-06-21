@@ -20,6 +20,8 @@ export class Unit {
         this.image = '';
         this.level = 1;
         this.class = UnitClass.Warrior;
+        this.threats = [];
+        this.threatMultiplier = 1;
 
         this.baseHealth = 400;
         this.baseDamage = 10;
@@ -38,7 +40,6 @@ export class Unit {
         this.castProgress = 0;
         this.castingAction = null;
         this.actionTarget = null;
-        this.damageLog = [];
     }
 
     resetHealth() {
@@ -190,5 +191,63 @@ export class Unit {
                 actions.push(action);
         });
         return actions;
+    }
+
+    increaseThreat(unit, threatValue) {
+        let threat = this.findThreat(unit);
+        if (threat === null) {
+            threat = this.createNewThreat(unit);
+        }
+        threat.threat += threatValue * unit.threatMultiplier;
+    }
+
+    createNewThreat(unit) {
+        let threat = {
+            unit: unit,
+            threat: 0
+        };
+        this.threats.push(threat);
+        return threat;
+    }
+
+    findThreat(unit) {
+        let result = null;
+        this.threats.forEach(threat => {
+            if (threat.unit === unit)
+                result = threat;
+        });
+        return result;
+    }
+
+    findHighestThreatExcludingTarget() {
+        let highest = null;
+        this.threats.forEach(threat => {
+            if ((highest === null || highest.threat < threat.threat) &&
+                (threat.unit !== this.target && threat.unit.health > 0))
+                highest = threat;
+        });
+        return highest;
+    }
+
+    findHighestThreat() {
+        let highest = null;
+        this.threats.forEach(threat => {
+            if ((highest === null || highest.threat < threat.threat) &&
+                threat.unit.health > 0)
+                highest = threat;
+        });
+        return highest;
+    }
+
+    setThreatEqualToHighestThreat(unit) {
+        let unitThreat = this.findThreat(unit);
+        if (unitThreat === null) {
+            unitThreat = this.createNewThreat(unit);
+        }
+
+        let highestThreat = this.findHighestThreat();
+        if (highestThreat !== null) {
+            unitThreat.threat = highestThreat.threat;
+        }
     }
 }
