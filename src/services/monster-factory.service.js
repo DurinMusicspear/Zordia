@@ -1,7 +1,7 @@
 import {inject} from 'aurelia-framework';
-import {SettingService} from './setting.service';
-import {ActionFactoryService} from './action-factory.service';
-import {Unit} from './unit';
+import {SettingService} from 'services/setting.service';
+import {ActionFactoryService} from 'services/action-factory.service';
+import {Unit} from 'unit';
 
 @inject(SettingService, ActionFactoryService)
 export class MonsterFactoryService {

@@ -1,6 +1,6 @@
 import {inject} from 'aurelia-framework';
-import {SettingService} from './setting.service';
-import {Action, ActionType, TargetType, TargetPriority} from './action';
+import {SettingService} from 'services/setting.service';
+import {Action, ActionType, TargetType, TargetPriority} from 'action';
 
 @inject(SettingService)
 export class ActionFactoryService {

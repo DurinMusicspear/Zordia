@@ -1,6 +1,6 @@
 import {inject, bindable, BindingEngine} from 'aurelia-framework';
-import {CombatService} from '../combat.service';
-import {CombatLogService} from '../combat-log.service';
+import {CombatService} from 'services/combat.service';
+import {CombatLogService} from 'services/combat-log.service';
 
 @inject(BindingEngine, CombatService, CombatLogService)
 export class UnitCustomElement {
@@ -14,7 +14,7 @@ export class UnitCustomElement {
         this.combatLogDisplay = [];
 
         let callback = this.onChangeUnit.bind(this);
-        let subscription = this.bindingEngine
+        this.bindingEngine
             .propertyObserver(this, 'unit')
             .subscribe(callback);
     }
@@ -24,7 +24,7 @@ export class UnitCustomElement {
             let callback = this.onAddCombatLogItem.bind(this);
             let unitLog = this.combatLog.createNewUnit(this.unit);
             this.combatLogItems = unitLog.displayLog;
-            let subscription = this.bindingEngine
+            this.bindingEngine
                 .collectionObserver(this.combatLogItems)
                 .subscribe(callback);
         }

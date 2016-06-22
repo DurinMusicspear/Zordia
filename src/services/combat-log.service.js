@@ -1,5 +1,5 @@
 import {inject} from 'aurelia-framework';
-import {SettingService} from './setting.service';
+import {SettingService} from 'services/setting.service';
 
 @inject(SettingService)
 export class CombatLogService {

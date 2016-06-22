@@ -2,8 +2,7 @@
 
 export function configure(aurelia) {
     aurelia.use
-        .defaultBindingLanguage()
-        .defaultResources()
+        .standardConfiguration()
         .developmentLogging()
         .feature('resources');
 

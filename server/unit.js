@@ -1,15 +1,13 @@
-import {inject} from 'aurelia-framework';
-import {SettingService} from 'services/setting.service';
-import {ActionType} from 'action';
+'use strict';
+// import {ActionType} from './action';
 
-export const UnitClass = {
+const UnitClass = {
     Warrior: 0,
     Druid: 1,
     Rogue: 2
 };
 
-@inject(SettingService)
-export class Unit {
+class Unit {
 
     constructor(settings) {
         this.settings = settings;
@@ -251,3 +249,8 @@ export class Unit {
         }
     }
 }
+
+module.exports = {
+    Unit: Unit,
+    UnitClass: UnitClass
+};

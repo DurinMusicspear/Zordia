@@ -1,33 +1,10 @@
 <template>
-  <require from="./app.css"></require>
-  <require from="./unit/unit"></require>
-  <require from="./actionBar/action-bar"></require>
-  <require from="./combatLog/combat-log"></require>
   <!--<require from="nav-bar.html"></require>-->
   <!--<require from="bootstrap/css/bootstrap.css"></require>-->
 
   <!--<nav-bar router.bind="router"></nav-bar>-->
 
-  <!--<div class="page-host">
+  <div class="page-host">
     <router-view></router-view>
-  </div>-->
-
-  <!--<h1>Zordia</h1>-->
-
-  <div class="player-container">
-    <h2>Player</h2>
-    <div repeat.for="unit of playerUnits">
-      <unit unit.bind="unit"></unit>
-    </div>
   </div>
-
-  <div class="enemy-container">
-    <h2>Enemy</h2>
-    <div repeat.for="unit of enemyUnits">
-      <unit unit.bind="unit"></unit>
-    </div>
-  </div>
-
-  <action-bar actions.bind="actions"></action-bar>
-  <combat-log></combat-log>
 </template>
