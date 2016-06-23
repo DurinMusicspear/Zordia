@@ -18,6 +18,7 @@ export class GameService {
         this.ioService = ioService;
 
         this.player = null;
+        this.players = [];
         this.playerUnits = [];
         this.enemyUnits = [];
         this.actions = [];
@@ -52,6 +53,11 @@ export class GameService {
 
     addAIPlayerToParty(unitClass) {
 
+    }
+
+    newPlayer(player) {
+        this.players.push(player);
+        console.log('Player connected: ', player);
     }
 
     // createMonsterUnit(monsterId) {

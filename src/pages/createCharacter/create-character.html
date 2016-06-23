@@ -4,4 +4,8 @@
   <div with.bind="player">
     <div>${name}</div>
   </div>
+
+  <div repeat.for="player of players">
+    <div>${player.name}</div>
+  </div>
 </template>

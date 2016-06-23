@@ -1,20 +1,19 @@
 'use strict';
 
-var express = require('express');
-var path = require('path');
-// var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var app = express();
-var server = require('http').Server(app);
-var io = require('socket.io')(server);
-var Game = require('./game');
-var game = new Game();
+let express = require('express');
+let path = require('path');
+// let favicon = require('serve-favicon');
+let logger = require('morgan');
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
+let app = express();
+let server = require('http').Server(app);
+let io = require('socket.io')(server);
+let Game = require('./services/game');
+let NetworkEngine = require('./services/network-engine');
+let routes = require('./routes/index');
 
-var routes = require('./routes/index');
-
-var allowCrossDomain = function(req, res, next) {
+let allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
@@ -43,18 +42,8 @@ server.listen(app.get('port'), function() {
     console.log('Express server listening on port ' + server.address().port);
 });
 
-
-var SocketConnection = require('./socket-connection');
-io.on('connection', function(socket) {
-    // new SocketConnection(socket);
-    // let unit = game.playerJoined();
-    // console.log(unit);
-    // socket.emit('uuid', unit);
-
-    socket.on('createCharacter', (data) => {
-        let character = game.createCharacter(data.name, data.unitClass);
-        socket.emit('characterCreated', character);
-    });
-});
+let game = new Game();
+let network = new NetworkEngine(io, game);
+game.setNetworkEngine(network);
 
 module.exports = app;

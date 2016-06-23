@@ -3,8 +3,8 @@
 // import {ActionFactoryService} from './action-factory.service';
 // import {Unit, UnitClass} from './unit';
 // var settings = require('./setting-service.js');
-var Unit = require('./unit').Unit;
-var UnitClass = require('./unit').UnitClass;
+var Unit = require('../models/unit').Unit;
+var UnitClass = require('../models/unit').UnitClass;
 
 class UnitFactory {
 

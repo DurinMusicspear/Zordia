@@ -19,4 +19,8 @@ export class CreateCharacter {
     get player() {
         return this.game.player;
     }
+
+    get players() {
+        return this.game.players;
+    }
 }

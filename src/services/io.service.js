@@ -15,14 +15,14 @@ export class IOService {
 
     connect() {
         this.socket = io('http://localhost:9000');
-        this.socket.on('uuid', (data) => {
-            console.log(data);
-            this.uuid = data;
-        });
+        this.socket.on('uuid', (data) => this.setUUID(data));
+        this.socket.on('characterCreated', (character) => this.game.onCharacterCreated(character));
+        this.socket.on('newPlayer', (player) => this.game.newPlayer(player));
+    }
 
-        this.socket.on('characterCreated', (character) => {
-            this.game.onCharacterCreated(character);
-        });
+    setUUID(uuid) {
+        this.uuid = uuid;
+        this.socket.emit('setName', { name: 'Durin' });
     }
 
     createCharacter(name, unitClass) {
