@@ -15,7 +15,7 @@ class UnitFactory {
 
     createUnit(unitClass) {
         let unit = new Unit(this.settings);
-        unit.unitClass = unitClass;
+        unit.class = unitClass;
         unit.id = unitClass + 1;
 
         switch (unitClass) {

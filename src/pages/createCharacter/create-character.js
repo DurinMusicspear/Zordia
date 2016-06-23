@@ -12,8 +12,6 @@ export class CreateCharacter {
     attached() {
         this.game.createCharacter('Durin', UnitClass.Assassin);
         this.game.createParty('Durins party');
-        this.game.addAIPlayerToParty(UnitClass.Warrior);
-        this.game.addAIPlayerToParty(UnitClass.Druid);
     }
 
     get player() {

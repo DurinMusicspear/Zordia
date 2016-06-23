@@ -1,6 +1,6 @@
 // import {AppComponent} from './app.component';
 import {inject} from 'aurelia-framework';
-import {OverTimeEffect, ActionType, TargetType, TargetPriority} from 'action';
+import {OverTimeEffect, ActionType, TargetType, TargetPriority} from 'models/action';
 import {SettingService} from 'services/setting.service';
 import {CombatLogService} from 'services/combat-log.service';
 

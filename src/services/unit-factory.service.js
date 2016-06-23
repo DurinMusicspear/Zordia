@@ -1,7 +1,7 @@
 import {inject} from 'aurelia-framework';
 import {SettingService} from 'services/setting.service';
 import {ActionFactoryService} from 'services/action-factory.service';
-import {Unit, UnitClass} from 'unit';
+import {Unit, UnitClass} from 'models/unit';
 
 @inject(SettingService, ActionFactoryService)
 export class UnitFactoryService {
@@ -13,7 +13,7 @@ export class UnitFactoryService {
 
     createUnit(unitClass) {
         let unit = new Unit(this.settings);
-        unit.unitClass = unitClass;
+        unit.class = unitClass;
         unit.id = unitClass + 1;
 
         switch (unitClass) {

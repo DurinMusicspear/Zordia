@@ -15,6 +15,7 @@ class Game {
         this.monsterFactory = new MonsterFactory(this.settings, null);
         this.combat = new CombatEngine(this.settings, this.combatLog);
         this.players = [];
+        this.parties = [];
 
         this.combat.start();
     }
@@ -33,6 +34,28 @@ class Game {
         // this.players.push(player);
         return character;
     }
+
+    addParty(party) {
+        this.parties.push(party);
+    }
+
+    addAIPlayerToParty(unitClass, partyId) {
+        console.log('Add ai player to party: ' + unitClass + ' ' + partyId);
+        let party = this.getPartyById(partyId);
+        let unit = this.unitFactory.createUnit(unitClass);
+        unit.isAiPlayer = true;
+        party.addAiPlayer(unit);
+    }
+
+    getPartyById(partyId) {
+        let result = null;
+        this.parties.forEach(party => {
+            if (party.id === partyId)
+                result = party;
+        });
+        return result;
+    }
+
 }
 
 module.exports = Game;

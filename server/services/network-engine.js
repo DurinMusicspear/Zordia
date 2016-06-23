@@ -22,7 +22,7 @@ class NetworkEngine {
 
     broadcastNewPlayer(player) {
         this.io.emit('newPlayer', {
-            uuid: player.uuid,
+            id: player.id,
             name: player.name
         });
     }

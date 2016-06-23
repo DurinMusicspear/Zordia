@@ -1,11 +1,13 @@
 import {inject} from 'aurelia-framework';
-// import {UnitClass} from 'unit';
-// import {ActionType} from 'action';
+import {log} from '../services/log.js';
 import {SettingService} from 'services/setting.service';
 import {CombatService} from 'services/combat.service';
 import {UnitFactoryService} from 'services/unit-factory.service';
 import {MonsterFactoryService} from 'services/monster-factory.service';
 import {IOService} from 'services/io.service';
+import {Party} from 'models/party';
+import {UnitClass} from 'models/unit';
+
 
 @inject(SettingService, CombatService, UnitFactoryService, MonsterFactoryService, IOService)
 export class GameService {
@@ -22,6 +24,7 @@ export class GameService {
         this.playerUnits = [];
         this.enemyUnits = [];
         this.actions = [];
+        this.party = null;
 
         this.ioService.setGame(this);
         this.ioService.connect();
@@ -44,20 +47,49 @@ export class GameService {
 
     onCharacterCreated(character) {
         this.player = character;
-        console.log(character);
+        log.debug(character);
+    }
+
+    onNewPlayerConnected(player) {
+        this.players.push(player);
+        log.debug('Player connected: ', player);
     }
 
     createParty(name) {
+        this.ioService.createParty(name);
+        this.party = new Party(name);
+    }
 
+    joinParty(id) {
+        this.ioService.joinParty(id);
+    }
+
+    onPartyCreated(id) {
+        this.party.id = id;
+        log.debug('Party created: ' + id);
+        this.addAIPlayerToParty(UnitClass.Warrior);
+        this.addAIPlayerToParty(UnitClass.Druid);
+    }
+
+    onPartyJoined(name, id, players) {
+        this.party = new Party(name);
+        this.party.id = id;
+        this.party.players = players;
+        log.debug('Party joined: ' + id);
     }
 
     addAIPlayerToParty(unitClass) {
-
+        this.ioService.addAIPlayerToParty(unitClass, this.party.id);
     }
 
-    newPlayer(player) {
-        this.players.push(player);
-        console.log('Player connected: ', player);
+    onPlayerJoinedParty(playerId) {
+        log.debug('Player joined party', playerId);
+    }
+
+    onAiPlayerJoinedParty(unitClass) {
+        // Create unit
+        // Add to party
+        log.debug('Add ai player: ' + unitClass);
     }
 
     // createMonsterUnit(monsterId) {

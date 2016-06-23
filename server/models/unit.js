@@ -13,7 +13,9 @@ class Unit {
         this.settings = settings;
 
         this.isPlayer = true;
+        this.isAiPlayer = false;
         this.id = 0;
+        // this.unitClass = -1;
         this.name = '';
         this.image = '';
         this.level = 1;

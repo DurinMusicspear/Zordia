@@ -1,6 +1,6 @@
 import {inject} from 'aurelia-framework';
 import {SettingService} from 'services/setting.service';
-import {ActionType} from 'action';
+import {ActionType} from 'models/action';
 
 export const UnitClass = {
     Warrior: 0,
