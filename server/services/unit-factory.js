@@ -3,7 +3,7 @@
 // import {ActionFactoryService} from './action-factory.service';
 // import {Unit, UnitClass} from './unit';
 // var settings = require('./setting-service.js');
-var Unit = require('../models/unit').Unit;
+var Player = require('../models/player');
 var UnitClass = require('../models/unit').UnitClass;
 
 class UnitFactory {
@@ -14,9 +14,9 @@ class UnitFactory {
     }
 
     createUnit(unitClass) {
-        let unit = new Unit(this.settings);
+        let unit = new Player(this.settings);
         unit.class = unitClass;
-        unit.id = unitClass + 1;
+        // unit.id = unitClass + 1;
 
         switch (unitClass) {
             case UnitClass.Warrior:
@@ -28,8 +28,8 @@ class UnitFactory {
                 unit.baseDamage = 50;
                 unit.attackTime = 3;
                 unit.threatMultiplier = 1.5;
-                // unit.addAction(this.actionFactory.createAction(3)); // Taunt
-                // unit.addAction(this.actionFactory.createAction(8)); // Shield wall
+                unit.addAction(this.actionFactory.createAction(3)); // Taunt
+                unit.addAction(this.actionFactory.createAction(8)); // Shield wall
                 break;
 
             case UnitClass.Rogue:
@@ -40,8 +40,8 @@ class UnitFactory {
                 unit.baseArmor = 25;
                 unit.baseDamage = 20;
                 unit.attackTime = 1.5;
-                // unit.addAction(this.actionFactory.createAction(4)); // Poison
-                // unit.addAction(this.actionFactory.createAction(5)); // Consume poison
+                unit.addAction(this.actionFactory.createAction(4)); // Poison
+                unit.addAction(this.actionFactory.createAction(5)); // Consume poison
                 break;
 
             case UnitClass.Druid:
@@ -52,9 +52,9 @@ class UnitFactory {
                 unit.baseArmor = 50;
                 unit.baseDamage = 30;
                 unit.attackTime = 2;
-                // unit.addAction(this.actionFactory.createAction(1)); // HOT
-                // unit.addAction(this.actionFactory.createAction(2)); // Heal
-                // unit.addAction(this.actionFactory.createAction(6)); // Heal & HOT
+                unit.addAction(this.actionFactory.createAction(1)); // HOT
+                unit.addAction(this.actionFactory.createAction(2)); // Heal
+                unit.addAction(this.actionFactory.createAction(6)); // Heal & HOT
                 break;
 
             default:

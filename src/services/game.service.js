@@ -45,51 +45,18 @@ export class GameService {
         this.ioService.createCharacter(name, unitClass);
     }
 
-    onCharacterCreated(character) {
-        this.player = character;
-        log.debug(character);
-    }
-
-    onNewPlayerConnected(player) {
-        this.players.push(player);
-        log.debug('Player connected: ', player);
-    }
-
     createParty(name) {
         this.ioService.createParty(name);
         this.party = new Party(name);
+        this.party.addPlayer(this.player);
     }
 
     joinParty(id) {
         this.ioService.joinParty(id);
     }
 
-    onPartyCreated(id) {
-        this.party.id = id;
-        log.debug('Party created: ' + id);
-        this.addAIPlayerToParty(UnitClass.Warrior);
-        this.addAIPlayerToParty(UnitClass.Druid);
-    }
-
-    onPartyJoined(name, id, players) {
-        this.party = new Party(name);
-        this.party.id = id;
-        this.party.players = players;
-        log.debug('Party joined: ' + id);
-    }
-
     addAIPlayerToParty(unitClass) {
         this.ioService.addAIPlayerToParty(unitClass, this.party.id);
-    }
-
-    onPlayerJoinedParty(playerId) {
-        log.debug('Player joined party', playerId);
-    }
-
-    onAiPlayerJoinedParty(unitClass) {
-        // Create unit
-        // Add to party
-        log.debug('Add ai player: ' + unitClass);
     }
 
     // createMonsterUnit(monsterId) {

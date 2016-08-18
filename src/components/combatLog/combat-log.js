@@ -1,7 +1,7 @@
 import numeral from 'numeral';
 import {inject, computedFrom} from 'aurelia-framework';
-import {CombatLogService} from '../combat-log.service';
 import {BindingSignaler} from 'aurelia-templating-resources';
+import {CombatLogService} from 'services/combat-log.service';
 
 
 @inject(CombatLogService, BindingSignaler)

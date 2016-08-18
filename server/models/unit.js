@@ -1,5 +1,7 @@
 'use strict';
-// import {ActionType} from './action';
+
+var uuid = require('node-uuid');
+var ActionType = require('../models/action').ActionType;
 
 const UnitClass = {
     Warrior: 0,
@@ -12,16 +14,10 @@ class Unit {
     constructor(settings) {
         this.settings = settings;
 
-        this.isPlayer = true;
-        this.isAiPlayer = false;
-        this.id = 0;
-        // this.unitClass = -1;
+        this.id = uuid.v4();
         this.name = '';
         this.image = '';
-        this.level = 1;
-        this.class = UnitClass.Warrior;
-        this.threats = [];
-        this.threatMultiplier = 1;
+        // this.level = 1;
 
         this.baseHealth = 400;
         this.baseDamage = 10;
@@ -33,7 +29,7 @@ class Unit {
         this.overTimeEffects = [];
         this.attackTime = settings.defaultAttackSpeed;
         this.hasteRating = 0;
-        this.armorPenentration = 0;
+        // this.armorPenentration = 0;
 
         this.attackProgress = 0;
         this.target = null;
@@ -193,62 +189,20 @@ class Unit {
         return actions;
     }
 
-    increaseThreat(unit, threatValue) {
-        let threat = this.findThreat(unit);
-        if (threat === null) {
-            threat = this.createNewThreat(unit);
-        }
-        threat.threat += threatValue * unit.threatMultiplier;
-    }
+    getBaseUnit() {
+        let actions = this.actions.map(action => action.getBaseAction());
 
-    createNewThreat(unit) {
-        let threat = {
-            unit: unit,
-            threat: 0
+        return {
+            name: this.name,
+            image: this.image,
+            unitClass: this.unitClass,
+            health: this.health,
+            damage: this.damage,
+            armor: this.armor,
+            dodgeChance: this.dodgeChance,
+            attackTime: this.attackTime,
+            actions: actions
         };
-        this.threats.push(threat);
-        return threat;
-    }
-
-    findThreat(unit) {
-        let result = null;
-        this.threats.forEach(threat => {
-            if (threat.unit === unit)
-                result = threat;
-        });
-        return result;
-    }
-
-    findHighestThreatExcludingTarget() {
-        let highest = null;
-        this.threats.forEach(threat => {
-            if ((highest === null || highest.threat < threat.threat) &&
-                (threat.unit !== this.target && threat.unit.health > 0))
-                highest = threat;
-        });
-        return highest;
-    }
-
-    findHighestThreat() {
-        let highest = null;
-        this.threats.forEach(threat => {
-            if ((highest === null || highest.threat < threat.threat) &&
-                threat.unit.health > 0)
-                highest = threat;
-        });
-        return highest;
-    }
-
-    setThreatEqualToHighestThreat(unit) {
-        let unitThreat = this.findThreat(unit);
-        if (unitThreat === null) {
-            unitThreat = this.createNewThreat(unit);
-        }
-
-        let highestThreat = this.findHighestThreat();
-        if (highestThreat !== null) {
-            unitThreat.threat = highestThreat.threat;
-        }
     }
 }
 

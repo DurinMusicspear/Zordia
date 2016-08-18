@@ -11,17 +11,19 @@ class Party {
         this.players = [];
     }
 
-    addPlayer(player) {
-        // this.players.push(player);
-        player.socket.join(this.id);
-        this.broadcast('playerJoinedParty', { id: player.id });
+    addPlayer(socket, unit) {
+        this.players.push(unit);
+        socket.join(this.id);
+        this.broadcast('party.onPlayerJoin', unit.getBaseUnit());
     }
 
-    addAiPlayer(player) {
-        this.broadcast('aiPlayerJoinedParty', { unitClass: player.class });
+    addAiPlayer(unit) {
+        this.players.push(unit);
+        this.broadcast('party.onAiPlayerJoin', unit.getBaseUnit());
     }
 
     removePlayer(player) {
+        // removeFromArray
         player.socket.leave(this.id);
     }
 

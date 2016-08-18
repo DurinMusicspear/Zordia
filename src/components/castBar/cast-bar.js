@@ -9,7 +9,7 @@ export class CastBarCustomElement {
 
     @computedFrom('progress')
     get progressPercent() {
-        if (this.action !== null)
+        if (this.action)
             return (this.progress / this.action.castTime) * 100 + '%';
 
         return '0';

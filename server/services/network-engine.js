@@ -12,18 +12,17 @@ class NetworkEngine {
     }
 
     listenForEvents() {
-        this.io.on('connection', (socket) => this.playerConnected(socket));
+        this.io.on('connection', (socket) => this.socketConnected(socket));
     }
 
-    playerConnected(socket) {
-        var player = new SocketConnection(this.io, socket, this.game, this);
-        this.game.playerConnected(player);
+    socketConnected(socket) {
+        new SocketConnection(this.io, socket, this.game, this, this.game.unitFactory);
     }
 
-    broadcastNewPlayer(player) {
-        this.io.emit('newPlayer', {
-            id: player.id,
-            name: player.name
+    broadcastCharacterCreated(unit) {
+        this.io.emit('broadcast.characterCreated', {
+            id: unit.id,
+            name: unit.name
         });
     }
 }

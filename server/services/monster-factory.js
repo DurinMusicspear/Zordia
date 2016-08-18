@@ -1,6 +1,6 @@
 'use strict';
 
-let Unit = require('../models/unit').Unit;
+let Monster = require('../models/monster');
 
 class MonsterFactory {
 
@@ -10,7 +10,7 @@ class MonsterFactory {
     }
 
     createMonster(monsterId) {
-        let unit = new Unit(this.settings);
+        let unit = new Monster(this.settings);
         unit.id = monsterId + 10;
         unit.isPlayer = false;
 

@@ -4,17 +4,16 @@ let OverTimeEffect = require('../models/action').OverTimeEffect;
 let ActionType = require('../models/action').ActionType;
 let TargetType = require('../models/action').TargetType;
 let TargetPriority = require('../models/action').TargetPriority;
+let Monster = require('../models/monster');
 
 class CombatEngine {
 
     constructor(settings, combatLog) {
         this.settings = settings;
         this.combatLog = combatLog;
-        this.playerUnits = [];
-        this.enemyUnits = [];
-        this.activeAction = null;
-        this.actionTarget = null;
-        this.selectedUnit = null;
+
+        this.combatContexts = [];
+
         this.combatActive = false;
         this.now = 0;
         this.dt = 0;
@@ -23,13 +22,16 @@ class CombatEngine {
     }
 
     start() {
-	    // this.meter = new FPSMeter();
         this.combatActive = true;
         this.animationFrame();
     }
 
     stop() {
         this.combatActive = false;
+    }
+
+    addCombatContext(combatContext) {
+        this.combatContexts.push(combatContext);
     }
 
     animationFrame() {
@@ -43,8 +45,6 @@ class CombatEngine {
 
         if (this.combatActive)
             setTimeout(() => this.animationFrame(), this.step);
-
-        // this.meter.tick();
     }
 
     timestamp() {
@@ -52,20 +52,26 @@ class CombatEngine {
     }
 
     tick(dt) {
-        this.playerUnits.forEach(unit => {
+        this.combatContexts.forEach(context => {
+            this.contextTick(context, dt);
+        });
+    }
+
+    contextTick(context, dt) {
+        context.enemies.forEach(unit => {
             if (unit.health > 0) {
-                this.checkPlayerTargetDead(unit);
-                this.progressAttack(unit, dt);
-                this.processOverTimeEffects(unit, dt);
+                this.runEnemyAI(unit);
+                this.checkEnemyTargetDead(context, unit);
+                this.progressAttack(context, unit, dt);
+                this.processOverTimeEffects(context, unit, dt);
                 this.reduceCooldowns(unit, dt);
             }
         });
-        this.enemyUnits.forEach(unit => {
+        context.players.forEach(unit => {
             if (unit.health > 0) {
-                this.runEnemyAI(unit);
-                this.checkEnemyTargetDead(unit);
-                this.progressAttack(unit, dt);
-                this.processOverTimeEffects(unit, dt);
+                this.checkPlayerTargetDead(context, unit);
+                this.progressAttack(context, unit, dt);
+                this.processOverTimeEffects(context, unit, dt);
                 this.reduceCooldowns(unit, dt);
             }
         });
@@ -78,15 +84,6 @@ class CombatEngine {
             } else if (unit.actions[1].cooldownRemaining === 0) {
                 unit.setCastingAction(unit.actions[1]);
             }
-            // let actionToCast = null;
-            // unit.actions.forEach(action => {
-            //     if (action.cooldownRemaining === 0) {
-            //         actionToCast = action;
-            //     }
-            // });
-            // if (actionToCast !== null) {
-            //     unit.setCastingAction(actionToCast);
-            // }
         }
 
         let highestThreat = unit.findHighestThreatExcludingTarget();
@@ -97,56 +94,36 @@ class CombatEngine {
         }
     }
 
-    checkPlayerTargetDead(player) {
+    checkPlayerTargetDead(context, player) {
         if (player.target === null || player.target.health === 0)
-            this.findNewPlayerTarget(player);
+            context.findNewPlayerTarget(player);
     }
 
-    findNewPlayerTarget(player) {
-        player.target = null;
-        this.enemyUnits.forEach(enemy => {
-            if (player.target === null && enemy.health > 0)
-                player.setTarget(enemy);
-        });
-        if (player.target === null)
-            this.stop();
-    }
-
-    checkEnemyTargetDead(enemy) {
+    checkEnemyTargetDead(context, enemy) {
         if (enemy.target === null || enemy.target.health === 0)
-            this.findNewEnemyTarget(enemy);
+            context.findNewEnemyTarget(enemy);
     }
 
-    findNewEnemyTarget(enemy) {
-        enemy.target = null;
-        this.playerUnits.forEach(player => {
-            if (enemy.target === null && player.health > 0)
-                enemy.setTarget(player);
-        });
-        if (enemy.target === null)
-            this.stop();
-    }
-
-    progressAttack(attacker, dt) {
+    progressAttack(context, attacker, dt) {
         if (attacker.castingAction !== null) {
             attacker.castProgress += dt;
             if (attacker.castProgress >= attacker.castingAction.castTime) {
-                this.executeAction(attacker);
+                this.executeAction(context, attacker);
             }
         } else {
             attacker.attackProgress += dt;
             if (attacker.attackProgress >= attacker.getAttackSpeed()) {
                 attacker.attackProgress -= attacker.getAttackSpeed();
-                this.executeAttack(attacker, attacker.target);
+                this.executeAttack(context, attacker, attacker.target);
             }
         }
     }
 
-    processOverTimeEffects(unit, dt) {
+    processOverTimeEffects(context, unit, dt) {
         unit.overTimeEffects.forEach(effect => {
             effect.reduceRemaningDuration(dt);
             if (effect.tickReady) {
-                this.executeOverTimeTick(unit, effect);
+                this.executeOverTimeTick(context, unit, effect);
                 effect.tickReady = false;
             }
             if (effect.remainingDuration === 0) {
@@ -155,7 +132,7 @@ class CombatEngine {
         });
     }
 
-    executeAttack(attacker, defender) {
+    executeAttack(context, attacker, defender) {
         let dmg = attacker.damage;
 
         dmg = dmg * (1 - defender.armorDamageReduction);
@@ -177,16 +154,18 @@ class CombatEngine {
             let onHitActions = attacker.getOnHitActions();
             onHitActions.forEach(action => {
                 if (action.id === 4) { // Poison
-                    this.applyOverTimeEffect(attacker, defender, action);
+                    this.applyOverTimeEffect(context, attacker, defender, action);
                 }
             });
 
             this.combatLog.logDamage(attacker, defender, dmg);
-            defender.increaseThreat(attacker, dmg);
+
+            if(defender instanceof Monster)
+                defender.increaseThreat(attacker, dmg);
         }
     }
 
-    executeOverTimeTick(target, overTimeEffect) {
+    executeOverTimeTick(context, target, overTimeEffect) {
         if (overTimeEffect.id === 1 || overTimeEffect.id === 6) { // HOT
             let numTicks = Math.floor(overTimeEffect.duration);
             if (numTicks > 0) {
@@ -202,7 +181,9 @@ class CombatEngine {
                 damage = Math.round(damage);
                 target.decreaseHealth(damage);
                 this.combatLog.logDamage(overTimeEffect.caster, target, damage);
-                target.increaseThreat(overTimeEffect.caster, damage);
+
+                if(target instanceof Monster)
+                    target.increaseThreat(overTimeEffect.caster, damage);
             }
         }
     }
@@ -217,21 +198,21 @@ class CombatEngine {
         return Math.random() < (percentChance / 100);
     }
 
-    setActiveAction(action) {
-        this.activeAction = action;
-    }
+    // setActiveAction(action) {
+    //     this.activeAction = action;
+    // }
 
-    castCurrentAction() {
-        let caster = this.activeAction.owner;
-        caster.setCastingAction(this.activeAction);
-    }
+    // castCurrentAction() {
+    //     let caster = this.activeAction.owner;
+    //     caster.setCastingAction(this.activeAction);
+    // }
 
-    castAction(action) {
-        this.activeAction = action;
-        this.castCurrentAction();
-    }
+    // castAction(action) {
+    //     this.activeAction = action;
+    //     this.castCurrentAction();
+    // }
 
-    executeAction(attacker) {
+    executeAction(context, attacker) {
         let action = attacker.castingAction;
         let target = null;
 
@@ -241,15 +222,15 @@ class CombatEngine {
             target = attacker.target;
         } else if (action.targetType === TargetType.Allied) {
             if (action.targetPriority === TargetPriority.LeastHealth)
-                target = this.findAllyWithLeastHealth(attacker);
+                target = context.findAllyWithLeastHealth(attacker);
         } else if (action.targetType === TargetType.Enemy) {
             if (action.targetPriority === TargetPriority.Random) {
-                target = this.findRandomEnemy(attacker);
+                target = context.findRandomEnemy(attacker);
             }
         }
 
         if (action.actionType === ActionType.OverTimeEffect || action.actionType === ActionType.DirectAndOverTime) {
-            this.applyOverTimeEffect(attacker, target, action);
+            this.applyOverTimeEffect(context, attacker, target, action);
         }
 
         if (action.id === 2) { // Heal
@@ -290,7 +271,7 @@ class CombatEngine {
         attacker.actionTarget = null;
     }
 
-    applyOverTimeEffect(caster, target, action) {
+    applyOverTimeEffect(context, caster, target, action) {
         let overTimeEffect = new OverTimeEffect(caster, action);
         if (target.hasOverTimeEffect(overTimeEffect)) {
             let existingEffect = target.getOverTimeEffect(overTimeEffect);
@@ -298,42 +279,6 @@ class CombatEngine {
         } else {
             target.addOverTimeEffect(overTimeEffect);
         }
-    }
-
-    isPlayerUnit(unit) {
-        return this.playerUnits.indexOf(unit) !== -1;
-    }
-
-    findAllyWithLeastHealth(unit) {
-        let leastUnit = null;
-        let allies = this.playerUnits;
-        if (!this.isPlayerUnit(unit)) {
-            allies = this.enemyUnits;
-        }
-        allies.forEach(u => {
-            if (u.health > 0 && (leastUnit === null || u.getHealthPercent() < leastUnit.getHealthPercent())) {
-                leastUnit = u;
-            }
-        });
-        return leastUnit;
-    }
-
-    findRandomEnemy(unit) {
-        let enemies = this.playerUnits;
-        if (this.isPlayerUnit(unit)) {
-            enemies = this.enemyUnits;
-        }
-        let possibleTargets = [];
-        enemies.forEach(enemy => {
-            if (enemy.health > 0) {
-                possibleTargets.push(enemy);
-            }
-        });
-
-        if (possibleTargets.length > 0)
-            return possibleTargets[this.getRandomIntInclusive(0, possibleTargets.length - 1)];
-
-        return null;
     }
 
     getRandomIntInclusive(min, max) {

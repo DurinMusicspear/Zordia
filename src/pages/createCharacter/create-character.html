@@ -1,8 +1,16 @@
 <template>
+  <require from="components/unit/unit"></require>
+
   <h1>Create character</h1>
 
   <div with.bind="player">
     <div>${name}</div>
+  </div>
+
+  <div with.bind="party">
+    <div repeat.for="unit of players">
+      <unit unit.bind="unit"></unit>
+    </div>
   </div>
 
   <div repeat.for="player of players">

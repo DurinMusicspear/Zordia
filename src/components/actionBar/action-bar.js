@@ -1,5 +1,5 @@
 import {inject, bindable, computedFrom} from 'aurelia-framework';
-import {CombatService} from '../combat.service';
+import {CombatService} from 'services/combat.service';
 
 @inject(CombatService)
 export class ActionBarCustomElement {

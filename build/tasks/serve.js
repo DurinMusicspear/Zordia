@@ -2,11 +2,14 @@ var gulp = require('gulp');
 var browserSync = require('browser-sync');
 var nodemon = require('gulp-nodemon');
 
-gulp.task('nodemon', function (cb) {
+gulp.task('nodemon', ['build'], function (cb) {
     var started = false;
 
     return nodemon({
-        script: 'server/server.js'
+        execMap: {
+            js: 'node --debug'
+        },
+        script: 'server/server.js',
     }).on('start', function () {
         // to avoid nodemon being started multiple times
         // thanks @matthisk

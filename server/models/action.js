@@ -23,16 +23,18 @@ class Action {
     constructor() {
         this.id = 0;
         this.name = '';
+        this.icon = '';
         this.castTime = 0;
         this.power = 0;
         this.cooldown = 0;
-        this.cooldownRemaining = 0;
-        this.owner = null;
-        this.targetType = 0;
-        this.targetPriority = 0;
         this.maxStacks = 1;
         this.duration = 0;
         this.actionType = ActionType.Direct;
+        this.targetType = 0;
+        this.targetPriority = 0;
+
+        this.cooldownRemaining = 0;
+        this.owner = null;
     }
 
     startCooldown() {
@@ -44,6 +46,22 @@ class Action {
             this.cooldownRemaining -= dt;
             if (this.cooldownRemaining < 0)
                 this.cooldownRemaining = 0;
+        }
+    }
+
+    getBaseAction() {
+        return {
+            id: this.id,
+            name: this.name,
+            icon: this.icon,
+            castTime: this.castTime,
+            power: this.power,
+            cooldown: this.cooldown,
+            maxStacks: this.maxStacks,
+            duration: this.duration,
+            actionType: this.actionType,
+            targetType: this.targetType,
+            targetPriority: this.targetPriority
         }
     }
 }
@@ -85,6 +103,7 @@ class OverTimeEffect {
             this.tickReady = true;
         }
     }
+
 }
 
 module.exports = {

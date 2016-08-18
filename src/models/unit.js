@@ -1,5 +1,5 @@
-import {inject} from 'aurelia-framework';
-import {SettingService} from 'services/setting.service';
+// import {inject} from 'aurelia-framework';
+// import {SettingService} from 'services/setting.service';
 import {ActionType} from 'models/action';
 
 export const UnitClass = {
@@ -8,38 +8,54 @@ export const UnitClass = {
     Rogue: 2
 };
 
-@inject(SettingService)
+// @inject(SettingService)
 export class Unit {
 
-    constructor(settings) {
+    constructor(settings, base) {
         this.settings = settings;
 
         this.isPlayer = true;
         this.id = 0;
-        this.name = '';
-        this.image = '';
-        this.level = 1;
-        this.class = UnitClass.Warrior;
-        this.threats = [];
-        this.threatMultiplier = 1;
+        // this.name = '';
+        // this.image = '';
+        // this.level = 1;
+        // this.class = UnitClass.Warrior;
 
-        this.baseHealth = 400;
-        this.baseDamage = 10;
+        this.base = base;
         this.health = 0;
-        this.baseDodge = 0;
-        this.baseArmor = 0;
+        // this.baseHealth = 400;
+        // this.baseDamage = 10;
+        // this.baseDodge = 0;
+        // this.baseArmor = 0;
 
-        this.actions = [];
+        // this.actions = [];
+
         this.overTimeEffects = [];
-        this.attackTime = settings.defaultAttackSpeed;
-        this.hasteRating = 0;
-        this.armorPenentration = 0;
+        // this.attackTime = settings.defaultAttackSpeed;
+        // this.hasteRating = 0;
+        // this.armorPenentration = 0;
 
         this.attackProgress = 0;
         this.target = null;
         this.castProgress = 0;
         this.castingAction = null;
         this.actionTarget = null;
+        this.resetHealth();
+    }
+
+    get name() { return this.base.name; }
+    get image() { return this.base.image; }
+    get actions() { return this.base.actions; }
+    get unitClass() { return this.base.unitClass; }
+    get maxHealth() { return this.base.health; }
+    get damage() { return this.base.damage; }
+    get armor() { return this.base.armor; }
+    get dodgeChance() { return this.base.dodgeChance; }
+    get attackTime() { return this.base.attackTime; }
+    get castTime() {
+        if (this.castingAction !== null)
+            return this.castingAction.castTime;
+        return 0;
     }
 
     resetHealth() {
@@ -69,7 +85,7 @@ export class Unit {
     }
 
     getAttackProgressPercent() {
-        return (this.attackProgress / this.getAttackSpeed()) * 100;
+        return (this.attackProgress / this.attackTime) * 100;
     }
 
     getCastProgressPercent() {
@@ -79,12 +95,6 @@ export class Unit {
         return (this.castProgress / this.castingAction.castTime) * 100;
     }
 
-    get castTime() {
-        if (this.castingAction !== null)
-            return this.castingAction.castTime;
-        return 0;
-    }
-
     reduceCastProgress(dt) {
         if (this.castingAction !== null) {
             this.castProgress -= dt;
@@ -92,15 +102,6 @@ export class Unit {
                 this.castProgress = 0;
         }
     }
-
-    // Virtual methods
-    get maxHealth() { return this.baseHealth; }
-    get damage() { return this.baseDamage; }
-    get armor() { return this.baseArmor; }
-    get dodgeChance() { return this.baseDodge; }
-    getAttackSpeed() { return this.attackTime; }
-    getArmorPenentration() { return this.armorPenentration; }
-    getHaste() { return this.hasteRating; }
 
     get armorDamageReduction() {
         return this.armor / (this.armor + this.settings.armorBaseLevel);
@@ -163,12 +164,7 @@ export class Unit {
     }
 
     hasOverTimeEffectById(effectId) {
-        let exist = false;
-        this.overTimeEffects.forEach(effect => {
-            if (effect.id === effectId)
-                exist = true;
-        });
-        return exist;
+        return this.getOverTimeEffectById(effectId) !== undefined;
     }
 
     getOverTimeEffect(overTimeEffect) {
@@ -176,12 +172,7 @@ export class Unit {
     }
 
     getOverTimeEffectById(effectId) {
-        let returnEffect = null;
-        this.overTimeEffects.forEach(effect => {
-            if (effect.id === effectId)
-                returnEffect = effect;
-        });
-        return returnEffect;
+        return this.overTimeEffects.find(effect => effect.id === effectId);
     }
 
     getOnHitActions() {
@@ -191,63 +182,5 @@ export class Unit {
                 actions.push(action);
         });
         return actions;
-    }
-
-    increaseThreat(unit, threatValue) {
-        let threat = this.findThreat(unit);
-        if (threat === null) {
-            threat = this.createNewThreat(unit);
-        }
-        threat.threat += threatValue * unit.threatMultiplier;
-    }
-
-    createNewThreat(unit) {
-        let threat = {
-            unit: unit,
-            threat: 0
-        };
-        this.threats.push(threat);
-        return threat;
-    }
-
-    findThreat(unit) {
-        let result = null;
-        this.threats.forEach(threat => {
-            if (threat.unit === unit)
-                result = threat;
-        });
-        return result;
-    }
-
-    findHighestThreatExcludingTarget() {
-        let highest = null;
-        this.threats.forEach(threat => {
-            if ((highest === null || highest.threat < threat.threat) &&
-                (threat.unit !== this.target && threat.unit.health > 0))
-                highest = threat;
-        });
-        return highest;
-    }
-
-    findHighestThreat() {
-        let highest = null;
-        this.threats.forEach(threat => {
-            if ((highest === null || highest.threat < threat.threat) &&
-                threat.unit.health > 0)
-                highest = threat;
-        });
-        return highest;
-    }
-
-    setThreatEqualToHighestThreat(unit) {
-        let unitThreat = this.findThreat(unit);
-        if (unitThreat === null) {
-            unitThreat = this.createNewThreat(unit);
-        }
-
-        let highestThreat = this.findHighestThreat();
-        if (highestThreat !== null) {
-            unitThreat.threat = highestThreat.threat;
-        }
     }
 }

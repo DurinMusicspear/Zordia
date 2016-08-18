@@ -22,6 +22,10 @@ export class CombatService {
         this.last = 0;
     }
 
+    addEnemy(unit) {
+        this.enemyUnits.push(unit);
+    }
+
     start() {
 	    // this.meter = new FPSMeter();
         this.combatActive = true;
@@ -54,19 +58,19 @@ export class CombatService {
     tick(dt) {
         this.playerUnits.forEach(unit => {
             if (unit.health > 0) {
-                this.checkPlayerTargetDead(unit);
-                this.progressAttack(unit, dt);
-                this.processOverTimeEffects(unit, dt);
-                this.reduceCooldowns(unit, dt);
+                // this.checkPlayerTargetDead(unit);
+                // this.progressAttack(unit, dt);
+                // this.processOverTimeEffects(unit, dt);
+                // this.reduceCooldowns(unit, dt);
             }
         });
         this.enemyUnits.forEach(unit => {
             if (unit.health > 0) {
-                this.runEnemyAI(unit);
-                this.checkEnemyTargetDead(unit);
-                this.progressAttack(unit, dt);
-                this.processOverTimeEffects(unit, dt);
-                this.reduceCooldowns(unit, dt);
+                // this.runEnemyAI(unit);
+                // this.checkEnemyTargetDead(unit);
+                // this.progressAttack(unit, dt);
+                // this.processOverTimeEffects(unit, dt);
+                // this.reduceCooldowns(unit, dt);
             }
         });
     }
